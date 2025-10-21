@@ -1,0 +1,21 @@
+@import '../custom';
+@import '../mixins';
+
+.auth-container {
+  min-height: 100vh;
+  @include flex-center;
+  background-color: #f5f5f5;
+  padding: 2rem 0;
+  
+  .auth-card {
+    width: 100%;
+    max-width: 450px;
+    @include box-shadow(0 10px 25px rgba(0, 0, 0, 0.1));
+    
+    .card-title {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: $primary;
+    }
+  }
+}

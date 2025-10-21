@@ -1,0 +1,25 @@
+// Este archivo contiene funciones de ayuda para color y matemáticas
+@use "sass:color";
+@use "sass:math";
+
+// Reemplazos para funciones globales de color
+@function red($color) {
+  @return color.channel($color, "red", $space: rgb);
+}
+
+@function green($color) {
+  @return color.channel($color, "green", $space: rgb);
+}
+
+@function blue($color) {
+  @return color.channel($color, "blue", $space: rgb);
+}
+
+@function mix($color1, $color2, $weight: 50%) {
+  @return color.mix($color1, $color2, $weight);
+}
+
+// Reemplazos para funciones matemáticas
+@function unit($value) {
+  @return math.unit($value);
+}

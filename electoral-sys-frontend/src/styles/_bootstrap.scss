@@ -1,0 +1,4 @@
+// Este archivo importa Bootstrap
+// Nota: Bootstrap todavía usa @import, pero eso no es algo que podamos controlar
+// Usamos @import aquí solo para Bootstrap, mientras mantenemos @use para nuestro código
+@import "bootstrap/scss/bootstrap";

@@ -1,0 +1,51 @@
+@import '../custom';
+@import '../mixins';
+
+.card {
+  border-radius: $border-radius;
+  overflow: hidden;
+  @include box-shadow(0 2px 5px rgba(0, 0, 0, 0.05));
+  @include transition;
+  
+  &:hover {
+    @include box-shadow(0 5px 15px rgba(0, 0, 0, 0.1));
+  }
+  
+  .card-header {
+    background-color: rgba($primary, 0.05);
+    border-bottom: $border-width solid rgba($primary, 0.1);
+  }
+  
+  &.campaign-card {
+    height: 100%;
+    
+    &:hover {
+      transform: translateY(-5px);
+    }
+    
+    .campaign-status {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      
+      &.active {
+        color: $voting-active;
+      }
+      
+      &.inactive {
+        color: $voting-inactive;
+      }
+      
+      &.pending {
+        color: $voting-pending;
+      }
+    }
+  }
+  
+  &.candidate-card {
+    .candidate-image {
+      height: 180px;
+      object-fit: cover;
+    }
+  }
+}

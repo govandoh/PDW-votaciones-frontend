@@ -1,0 +1,58 @@
+// Importar variables personalizadas antes de Bootstrap
+@import "./_custom.scss";
+
+// Importar Bootstrap
+@import "bootstrap/scss/bootstrap";
+
+// Importar los mixins después de Bootstrap para que puedan usar variables Bootstrap 
+@import "./_mixins.scss";
+
+// Componentes personalizados
+@import "components/buttons";
+@import "components/cards";
+@import "components/forms";
+@import "components/navbar";
+@import "components/candidate-form";
+@import "components/reports";
+@import "components/error-pages";
+
+// Layouts
+@import "layouts/auth";
+@import "layouts/dashboard";
+@import "layouts/voting";
+
+// Estilos globales adicionales
+body {
+  font-family: $font-family-base;
+  color: $dark;
+  background-color: #f9f9f9;
+}
+
+// Estilos globales
+body {
+  font-family: $font-family-base;
+  color: $dark;
+  background-color: #f9f9f9;
+}
+
+.container {
+  padding: 1rem 15px;
+}
+
+// Utilidades
+.text-primary { color: $primary !important; }
+.text-success { color: $success !important; }
+.text-danger { color: $danger !important; }
+.text-warning { color: $warning !important; }
+.text-info { color: $info !important; }
+
+// Animaciones
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; } 
+
+}

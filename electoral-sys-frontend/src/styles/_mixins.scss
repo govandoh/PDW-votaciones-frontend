@@ -1,0 +1,52 @@
+// Mixins para flexbox
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+// Mixins para responsive
+@mixin mobile {
+  @media (max-width: 767px) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: 768px) and (max-width: 1023px) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: 1024px) {
+    @content;
+  }
+}
+
+// Mixin para transiciones
+@mixin transition($property: all, $duration: 0.3s, $timing: ease) {
+  transition: $property $duration $timing;
+}
+
+// Mixin para sombras
+@mixin box-shadow($shadow...) {
+  box-shadow: $shadow;
+}
+
+// Mixin para botones
+@mixin button-variant($bg, $color, $hover-bg, $hover-color) {
+  background-color: $bg;
+  color: $color;
+  
+  &:hover, &:focus {
+    background-color: $hover-bg;
+    color: $hover-color;
+  }
+}

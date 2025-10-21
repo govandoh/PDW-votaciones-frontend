@@ -1,0 +1,27 @@
+/* Estilos globales para la aplicación */
+body {
+  margin: 0;
+  font-family: var(--bs-font-sans-serif);
+}
+
+/* Contenedor principal */
+.container {
+  padding: 1rem 15px;
+}
+
+/* Utilidades de texto */
+.text-primary { color: var(--bs-primary) !important; }
+.text-success { color: var(--bs-success) !important; }
+.text-danger { color: var(--bs-danger) !important; }
+.text-warning { color: var(--bs-warning) !important; }
+.text-info { color: var(--bs-info) !important; }
+
+/* Animación de aparición */
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; } 
+}

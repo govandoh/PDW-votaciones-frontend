@@ -1,0 +1,29 @@
+@import '../custom';
+@import '../mixins';
+
+.form-control {
+  border-radius: $border-radius;
+  padding: 0.5rem 0.75rem;
+  border: $border-width solid rgba(0, 0, 0, 0.2);
+  @include transition;
+  
+  &:focus {
+    border-color: $primary;
+    box-shadow: 0 0 0 0.2rem rgba($primary, 0.25);
+  }
+}
+
+.form-label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.error-feedback {
+  color: $danger;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}

@@ -1,0 +1,39 @@
+// Variables que sobrescriben las de Bootstrap
+// Estas variables deben cargarse ANTES de importar Bootstrap
+
+// Colores principales
+$primary: #0055a4;      // Azul institucional
+$secondary: #5a6268;    // Gris secundario
+$success: #28a745;      // Verde éxito
+$info: #17a2b8;         // Azul información
+$warning: #ffc107;      // Amarillo advertencia
+$danger: #dc3545;       // Rojo error
+$light: #f8f9fa;        // Gris claro
+$dark: #343a40;         // Gris oscuro
+$white: #fff;           // Blanco
+
+// Colores específicos de la aplicación
+$voting-active: #4caf50;     // Verde para votaciones activas
+$voting-inactive: #f44336;   // Rojo para votaciones inactivas
+$voting-pending: #ff9800;    // Naranja para votaciones pendientes
+
+// Tipografía
+$font-family-base: 'Roboto', system-ui, -apple-system, "Segoe UI", sans-serif;
+$headings-font-family: $font-family-base;
+
+// Espaciado
+$spacer: 1rem;
+
+// Bordes
+$border-radius: 0.25rem;
+$border-width: 1px;
+
+// Personalización adicional
+$enable-rounded: true;
+$enable-shadows: true;
+$enable-gradients: false;
+
+// Opciones de tarjetas
+$card-border-width: 0;
+$card-border-radius: $border-radius;
+$card-cap-bg: rgba($primary, 0.03);

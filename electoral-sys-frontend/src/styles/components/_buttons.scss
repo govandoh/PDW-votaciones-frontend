@@ -1,0 +1,31 @@
+@import '../custom';
+@import '../mixins';
+
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: $border-radius;
+  @include transition;
+  
+  &-primary {
+    @include button-variant($primary, white, darken($primary, 10%), white);
+  }
+  
+  &-success {
+    @include button-variant($success, white, darken($success, 10%), white);
+  }
+  
+  &-danger {
+    @include button-variant($danger, white, darken($danger, 10%), white);
+  }
+  
+  &-vote {
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    
+    &:hover {
+      transform: translateY(-2px);
+      @include box-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+    }
+  }
+}
