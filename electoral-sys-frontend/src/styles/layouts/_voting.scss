@@ -1,5 +1,6 @@
-@import '../custom';
-@import '../mixins';
+@use '../custom' as vars;
+@use '../mixins' as mix;
+@use 'sass:color';
 
 .voting {
   &-header {
@@ -10,37 +11,37 @@
     }
     
     .campaign-description {
-      color: $secondary;
+      color: vars.$secondary;
     }
     
     .campaign-status {
       padding: 0.25rem 0.75rem;
-      border-radius: $border-radius;
+      border-radius: vars.$border-radius;
       font-size: 0.875rem;
       font-weight: 500;
       
       &.active {
-        background-color: rgba($voting-active, 0.1);
-        color: $voting-active;
+        background-color: color.change(vars.$voting-active, $alpha: 0.1);
+        color: vars.$voting-active;
       }
       
       &.inactive {
-        background-color: rgba($voting-inactive, 0.1);
-        color: $voting-inactive;
+        background-color: color.change(vars.$voting-inactive, $alpha: 0.1);
+        color: vars.$voting-inactive;
       }
     }
   }
   
   &-timer {
-    background-color: rgba($info, 0.05);
-    border-radius: $border-radius;
+    background-color: color.change(vars.$info, $alpha: 0.05);
+    border-radius: vars.$border-radius;
     padding: 1rem;
     margin-bottom: 1.5rem;
     
     .timer-value {
       font-size: 1.5rem;
       font-weight: 700;
-      color: $info;
+      color: vars.$info;
       margin-bottom: 0;
     }
     
@@ -55,13 +56,13 @@
       margin-bottom: 1rem;
       
       .bar-label {
-        @include flex-between;
+        @include mix.flex-between;
         margin-bottom: 0.25rem;
       }
       
       .progress {
         height: 1.5rem;
-        border-radius: $border-radius;
+        border-radius: vars.$border-radius;
       }
     }
   }

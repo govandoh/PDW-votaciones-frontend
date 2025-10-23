@@ -1,19 +1,21 @@
-@import '../custom';
-@import '../mixins';
+@use "../variables" as vars;
+@use "../mixins" as mix;
+@use "../tokens" as *;
+@use "sass:color";
 
 .card {
-  border-radius: $border-radius;
+  border-radius: vars.$border-radius;
   overflow: hidden;
-  @include box-shadow(0 2px 5px rgba(0, 0, 0, 0.05));
-  @include transition;
+  @include mix.box-shadow(0 2px 5px rgba(0, 0, 0, 0.05));
+  @include mix.transition;
   
   &:hover {
-    @include box-shadow(0 5px 15px rgba(0, 0, 0, 0.1));
+    @include mix.box-shadow(0 5px 15px rgba(0, 0, 0, 0.1));
   }
   
   .card-header {
-    background-color: rgba($primary, 0.05);
-    border-bottom: $border-width solid rgba($primary, 0.1);
+    background-color: rgba(vars.$primary, 0.05);
+    border-bottom: vars.$border-width solid rgba(vars.$primary, 0.1);
   }
   
   &.campaign-card {
@@ -29,15 +31,15 @@
       right: 0.5rem;
       
       &.active {
-        color: $voting-active;
+        color: vars.$voting-active;
       }
       
       &.inactive {
-        color: $voting-inactive;
+        color: vars.$voting-inactive;
       }
       
       &.pending {
-        color: $voting-pending;
+        color: vars.$voting-pending;
       }
     }
   }

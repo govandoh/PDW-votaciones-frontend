@@ -1,3 +1,10 @@
+@use "sass:color";
+@use "sass:math";
+@use "./variables" as vars;
+
+// Exportamos los mixins
+//@forward "./mixins";
+
 // Mixins para flexbox
 @mixin flex-center {
   display: flex;
@@ -50,3 +57,4 @@
     color: $hover-color;
   }
 }
+

@@ -1,15 +1,17 @@
-@import '../custom';
-@import '../mixins';
+@use "../variables" as vars;
+@use "../mixins" as mix;
+@use "../tokens" as *;
+@use "sass:color";
 
 .form-control {
-  border-radius: $border-radius;
+  border-radius: vars.$border-radius;
   padding: 0.5rem 0.75rem;
-  border: $border-width solid rgba(0, 0, 0, 0.2);
-  @include transition;
+  border: vars.$border-width solid rgba(0, 0, 0, 0.2);
+  @include mix.transition;
   
   &:focus {
-    border-color: $primary;
-    box-shadow: 0 0 0 0.2rem rgba($primary, 0.25);
+    border-color: vars.$primary;
+    box-shadow: 0 0 0 0.2rem rgba(vars.$primary, 0.25);
   }
 }
 
@@ -23,7 +25,7 @@
 }
 
 .error-feedback {
-  color: $danger;
+  color: vars.$danger;
   font-size: 0.875rem;
   margin-top: 0.25rem;
 }

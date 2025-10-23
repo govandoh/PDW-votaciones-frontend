@@ -1,21 +1,23 @@
-@import '../custom';
-@import '../mixins';
+@use "../variables" as vars;
+@use "../mixins" as mix;
+@use "../tokens" as *;
+@use "sass:color";
 
 .btn {
   padding: 0.5rem 1rem;
-  border-radius: $border-radius;
-  @include transition;
+  border-radius: vars.$border-radius;
+  @include mix.transition;
   
   &-primary {
-    @include button-variant($primary, white, darken($primary, 10%), white);
+    @include mix.button-variant(vars.$primary, white, color.scale(vars.$primary, $lightness: -10%), white);
   }
   
   &-success {
-    @include button-variant($success, white, darken($success, 10%), white);
+    @include mix.button-variant(vars.$success, white, color.scale(vars.$success, $lightness: -10%), white);
   }
   
   &-danger {
-    @include button-variant($danger, white, darken($danger, 10%), white);
+    @include mix.button-variant(vars.$danger, white, color.scale(vars.$danger, $lightness: -10%), white);
   }
   
   &-vote {
@@ -25,7 +27,7 @@
     
     &:hover {
       transform: translateY(-2px);
-      @include box-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+      @include mix.box-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
     }
   }
 }

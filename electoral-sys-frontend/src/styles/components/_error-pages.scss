@@ -1,6 +1,7 @@
 // _error-pages.scss
-@import '../custom';
-@import '../mixins';
+@use '../custom' as vars;
+@use '../mixins' as mix;
+@use 'sass:color';
 
 // Estilos para páginas de error (404, 403, 500)
 .unauthorized-container {
@@ -12,8 +13,8 @@
 
 .unauthorized-card {
   border: none;
-  border-radius: $border-radius;
-  border-top: 5px solid $danger;
+  border-radius: vars.$border-radius;
+  border-top: 5px solid vars.$danger;
   transform: translateY(0);
   transition: all 0.3s ease;
   
@@ -24,12 +25,12 @@
   
   .unauthorized-icon {
     font-size: 3.5rem;
-    color: $danger;
+    color: vars.$danger;
     opacity: 0.8;
     margin-bottom: 1.5rem;
     
     i {
-      background-color: rgba($danger, 0.1);
+      background-color: color.change(vars.$danger, $alpha: 0.1);
       border-radius: 50%;
       padding: 1.5rem;
       display: inline-block;
@@ -43,11 +44,11 @@
   
   h2 {
     font-weight: 600;
-    color: $dark;
+    color: vars.$dark;
   }
   
   .lead {
-    color: $text-muted;
+    color: vars.$text-muted;
     max-width: 80%;
     margin: 0 auto;
   }

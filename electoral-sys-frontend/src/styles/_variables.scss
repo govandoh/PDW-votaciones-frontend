@@ -1,19 +1,18 @@
 // Colores principales
-$primary: #0055a4;
-$secondary: #5a6268;
-$success: #28a745;
-$info: #17a2b8;
-$warning: #ffc107;
-$danger: #dc3545;
-$light: #f8f9fa;
-$dark: #343a40;
-$purple: #6f42c1;
-$text-muted: #6c757d;
+$primary: #0055a4;      // Azul institucional
+$secondary: #5a6268;    // Gris secundario
+$success: #28a745;      // Verde éxito
+$info: #17a2b8;         // Azul información
+$warning: #ffc107;      // Amarillo advertencia
+$danger: #dc3545;       // Rojo error
+$light: #f8f9fa;        // Gris claro
+$dark: #343a40;         // Gris oscuro
+$white: #fff;           // Blanco
 
 // Colores específicos de la aplicación
-$voting-active: #4caf50;
-$voting-inactive: #f44336;
-$voting-pending: #ff9800;
+$voting-active: #4caf50;     // Verde para votaciones activas
+$voting-inactive: #f44336;   // Rojo para votaciones inactivas
+$voting-pending: #ff9800;    // Naranja para votaciones pendientes
 
 // Tipografía
 $font-family-base: 'Roboto', sans-serif;
@@ -26,5 +25,12 @@ $spacer: 1rem;
 $border-radius: 0.25rem;
 $border-width: 1px;
 
-// Sombras
-$box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+// Personalización adicional
+$enable-rounded: true;
+$enable-shadows: true;
+$enable-gradients: false;
+
+// Opciones de tarjetas
+$card-border-width: 0;
+$card-border-radius: $border-radius;
+$card-cap-bg: rgba($primary, 0.03);

@@ -1,37 +1,27 @@
-// Importar variables personalizadas antes de Bootstrap
-@import "./_custom.scss";
+// Importamos la configuración de Bootstrap
+@use "./bootstrap-config";
 
-// Importar Bootstrap
-@import "bootstrap/scss/bootstrap";
+// Importamos variables y mixins con namespaces
+@use "./variables" as vars;
+@use "./mixins" as mix;
+@use "./utils" as utils;
 
-// Importar los mixins después de Bootstrap para que puedan usar variables Bootstrap 
-@import "./_mixins.scss";
-
-// Componentes personalizados
-@import "components/buttons";
-@import "components/cards";
-@import "components/forms";
-@import "components/navbar";
-@import "components/candidate-form";
-@import "components/reports";
-@import "components/error-pages";
+// Componentes
+@use "./components/buttons";
+@use "./components/candidate-form";
+@use "./components/cards";
+@use "./components/error-pages";
+@use "./components/forms";
+@use "./components/navbar";
+@use "./components/reports";
 
 // Layouts
-@import "layouts/auth";
-@import "layouts/dashboard";
-@import "layouts/voting";
-
-// Estilos globales adicionales
-body {
-  font-family: $font-family-base;
-  color: $dark;
-  background-color: #f9f9f9;
-}
+@use "./layouts/index";
 
 // Estilos globales
 body {
-  font-family: $font-family-base;
-  color: $dark;
+  font-family: vars.$font-family-base;
+  color: vars.$dark;
   background-color: #f9f9f9;
 }
 
@@ -40,11 +30,11 @@ body {
 }
 
 // Utilidades
-.text-primary { color: $primary !important; }
-.text-success { color: $success !important; }
-.text-danger { color: $danger !important; }
-.text-warning { color: $warning !important; }
-.text-info { color: $info !important; }
+.text-primary { color: vars.$primary !important; }
+.text-success { color: vars.$success !important; }
+.text-danger { color: vars.$danger !important; }
+.text-warning { color: vars.$warning !important; }
+.text-info { color: vars.$info !important; }
 
 // Animaciones
 .fade-in {
@@ -53,6 +43,5 @@ body {
 
 @keyframes fadeIn {
   from { opacity: 0; }
-  to { opacity: 1; } 
-
+  to { opacity: 1; }
 }
