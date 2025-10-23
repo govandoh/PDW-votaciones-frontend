@@ -1,5 +1,5 @@
 // _reports.scss
-@use '../custom' as vars;
+@use '../variables' as vars;
 @use '../mixins' as mix;
 @use 'sass:color';
 
@@ -57,7 +57,7 @@
       
       .stat-label {
         font-size: 0.8rem;
-        color: vars.$text-muted;
+        color: var(--bs-secondary-color);
         font-weight: 500;
         margin-bottom: 0.25rem;
       }
@@ -87,7 +87,7 @@
         
         .summary-label {
           font-size: 0.8rem;
-          color: vars.$text-muted;
+          color: var(--bs-secondary-color);
           margin-top: 0.25rem;
         }
       }

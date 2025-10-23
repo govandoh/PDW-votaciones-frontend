@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { User } from '../types';
 import { getToken, getUser, removeToken, removeUser } from '../utils/auth';
-import { verifyToken } from '../services/authService';
+import { verifyAuth } from '../services/authService';
 import socketService from '../services/socketService';
 
 interface AuthContextType {
@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               socketService.connect();
             } else {
               try {
-                const userData = await verifyToken();
+                const userData = await verifyAuth();
                 setUser(userData);
                 socketService.connect();
               } catch (error) {

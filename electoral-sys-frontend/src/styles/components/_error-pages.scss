@@ -1,5 +1,5 @@
 // _error-pages.scss
-@use '../custom' as vars;
+@use '../variables' as vars;
 @use '../mixins' as mix;
 @use 'sass:color';
 
@@ -48,7 +48,7 @@
   }
   
   .lead {
-    color: vars.$text-muted;
+    color: var(--bs-secondary-color);
     max-width: 80%;
     margin: 0 auto;
   }

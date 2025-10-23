@@ -1,9 +1,0 @@
-// Este archivo expone variables y funciones de Bootstrap para otros módulos
-
-@use "bootstrap/scss/functions" as *;
-@use "bootstrap/scss/variables" as *;
-@use "bootstrap/scss/mixins" as *;
-
-// Re-exportamos las variables para uso en otros archivos
-@forward "bootstrap/scss/variables";
-@forward "bootstrap/scss/mixins";

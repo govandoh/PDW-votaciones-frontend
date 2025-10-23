@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import { Formik, Form as FormikForm, Field, ErrorMessage } from 'formik';
+import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { register } from '../../services/authService';
 import { RegisterFormValues } from '../../types';
+import { register } from '../../services/authService';
 
-const RegisterPage = () => {
+const RegisterPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -24,14 +24,11 @@ const RegisterPage = () => {
   
   const validationSchema = Yup.object({
     numeroColegiado: Yup.string()
-      .required('El número de colegiado es requerido')
-      .matches(/^\d+$/, 'El número de colegiado debe contener solo dígitos'),
+      .required('El número de colegiado es requerido'),
     nombres: Yup.string()
-      .required('Los nombres son requeridos')
-      .max(100, 'Los nombres no pueden exceder los 100 caracteres'),
+      .required('Los nombres son requeridos'),
     apellidos: Yup.string()
-      .required('Los apellidos son requeridos')
-      .max(100, 'Los apellidos no pueden exceder los 100 caracteres'),
+      .required('Los apellidos son requeridos'),
     correo: Yup.string()
       .required('El correo electrónico es requerido')
       .email('Formato de correo electrónico inválido'),
@@ -58,28 +55,32 @@ const RegisterPage = () => {
       setError(null);
       setSuccess(null);
       
-      // Enviar los datos completos (RegisterFormValues) al servicio de registro
-      // TypeScript espera que confirmPassword esté presente en el objeto
-      await register(values);
+      // Remover confirmPassword antes de enviar los datos
+      const { confirmPassword, ...registerData } = values;
+      
+      console.log("Datos a enviar:", registerData); // Para depuración
+      
+      await register(registerData);
       setSuccess('¡Registro exitoso! Ahora puede iniciar sesión.');
-      setError(null);
+      
       // Redireccionar después de un registro exitoso
       setTimeout(() => {
         navigate('/login');
       }, 3000);
     } catch (err: any) {
+      console.error("Error completo:", err); // Para depuración
       setError(err.response?.data?.message || 'Error al registrar usuario');
       setSubmitting(false);
     }
   };
   
   return (
-    <Container className="auth-container">
+    <Container className="py-5">
       <Row className="justify-content-center">
         <Col md={10} lg={8}>
-          <Card className="auth-card shadow">
+          <Card className="shadow">
             <Card.Body className="p-4">
-              <h2 className="text-center mb-4 card-title">Registro de Usuario</h2>
+              <h2 className="text-center mb-4">Registro de Usuario</h2>
               
               {error && <Alert variant="danger">{error}</Alert>}
               {success && <Alert variant="success">{success}</Alert>}
@@ -89,40 +90,42 @@ const RegisterPage = () => {
                 validationSchema={validationSchema}
                 onSubmit={handleSubmit}
               >
-                {({ isSubmitting, touched, errors }) => (
-                  <FormikForm>
+                {({ handleSubmit, handleChange, handleBlur, values, touched, errors, isSubmitting }) => (
+                  <Form noValidate onSubmit={handleSubmit}>
                     <Row>
                       <Col md={6}>
                         <Form.Group className="mb-3">
                           <Form.Label>Número de Colegiado</Form.Label>
-                          <Field
-                            name="numeroColegiado"
+                          <Form.Control
                             type="text"
-                            placeholder="Ingrese su número de colegiado"
-                            className={`form-control ${touched.numeroColegiado && errors.numeroColegiado ? 'is-invalid' : ''}`}
-                          />
-                          <ErrorMessage
                             name="numeroColegiado"
-                            component="div"
-                            className="invalid-feedback"
+                            value={values.numeroColegiado}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.numeroColegiado && !!errors.numeroColegiado}
+                            placeholder="Ingrese su número de colegiado"
                           />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.numeroColegiado}
+                          </Form.Control.Feedback>
                         </Form.Group>
                       </Col>
                       
                       <Col md={6}>
                         <Form.Group className="mb-3">
                           <Form.Label>DPI</Form.Label>
-                          <Field
-                            name="dpi"
+                          <Form.Control
                             type="text"
-                            placeholder="Ingrese su DPI (13 dígitos)"
-                            className={`form-control ${touched.dpi && errors.dpi ? 'is-invalid' : ''}`}
-                          />
-                          <ErrorMessage
                             name="dpi"
-                            component="div"
-                            className="invalid-feedback"
+                            value={values.dpi}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.dpi && !!errors.dpi}
+                            placeholder="Ingrese su DPI (13 dígitos)"
                           />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.dpi}
+                          </Form.Control.Feedback>
                         </Form.Group>
                       </Col>
                     </Row>
@@ -131,34 +134,36 @@ const RegisterPage = () => {
                       <Col md={6}>
                         <Form.Group className="mb-3">
                           <Form.Label>Nombres</Form.Label>
-                          <Field
-                            name="nombres"
+                          <Form.Control
                             type="text"
-                            placeholder="Ingrese sus nombres"
-                            className={`form-control ${touched.nombres && errors.nombres ? 'is-invalid' : ''}`}
-                          />
-                          <ErrorMessage
                             name="nombres"
-                            component="div"
-                            className="invalid-feedback"
+                            value={values.nombres}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.nombres && !!errors.nombres}
+                            placeholder="Ingrese sus nombres"
                           />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.nombres}
+                          </Form.Control.Feedback>
                         </Form.Group>
                       </Col>
                       
                       <Col md={6}>
                         <Form.Group className="mb-3">
                           <Form.Label>Apellidos</Form.Label>
-                          <Field
-                            name="apellidos"
+                          <Form.Control
                             type="text"
-                            placeholder="Ingrese sus apellidos"
-                            className={`form-control ${touched.apellidos && errors.apellidos ? 'is-invalid' : ''}`}
-                          />
-                          <ErrorMessage
                             name="apellidos"
-                            component="div"
-                            className="invalid-feedback"
+                            value={values.apellidos}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.apellidos && !!errors.apellidos}
+                            placeholder="Ingrese sus apellidos"
                           />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.apellidos}
+                          </Form.Control.Feedback>
                         </Form.Group>
                       </Col>
                     </Row>
@@ -167,33 +172,35 @@ const RegisterPage = () => {
                       <Col md={6}>
                         <Form.Group className="mb-3">
                           <Form.Label>Correo Electrónico</Form.Label>
-                          <Field
-                            name="correo"
+                          <Form.Control
                             type="email"
-                            placeholder="Ingrese su correo electrónico"
-                            className={`form-control ${touched.correo && errors.correo ? 'is-invalid' : ''}`}
-                          />
-                          <ErrorMessage
                             name="correo"
-                            component="div"
-                            className="invalid-feedback"
+                            value={values.correo}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.correo && !!errors.correo}
+                            placeholder="Ingrese su correo electrónico"
                           />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.correo}
+                          </Form.Control.Feedback>
                         </Form.Group>
                       </Col>
                       
                       <Col md={6}>
                         <Form.Group className="mb-3">
                           <Form.Label>Fecha de Nacimiento</Form.Label>
-                          <Field
-                            name="fechaNacimiento"
+                          <Form.Control
                             type="date"
-                            className={`form-control ${touched.fechaNacimiento && errors.fechaNacimiento ? 'is-invalid' : ''}`}
-                          />
-                          <ErrorMessage
                             name="fechaNacimiento"
-                            component="div"
-                            className="invalid-feedback"
+                            value={values.fechaNacimiento}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.fechaNacimiento && !!errors.fechaNacimiento}
                           />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.fechaNacimiento}
+                          </Form.Control.Feedback>
                         </Form.Group>
                       </Col>
                     </Row>
@@ -202,17 +209,18 @@ const RegisterPage = () => {
                       <Col md={6}>
                         <Form.Group className="mb-3">
                           <Form.Label>Contraseña</Form.Label>
-                          <Field
-                            name="password"
+                          <Form.Control
                             type="password"
-                            placeholder="Ingrese su contraseña"
-                            className={`form-control ${touched.password && errors.password ? 'is-invalid' : ''}`}
-                          />
-                          <ErrorMessage
                             name="password"
-                            component="div"
-                            className="invalid-feedback"
+                            value={values.password}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.password && !!errors.password}
+                            placeholder="Ingrese su contraseña"
                           />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.password}
+                          </Form.Control.Feedback>
                           <Form.Text className="text-muted">
                             La contraseña debe tener al menos 8 caracteres e incluir una letra mayúscula, una minúscula y un número.
                           </Form.Text>
@@ -222,17 +230,18 @@ const RegisterPage = () => {
                       <Col md={6}>
                         <Form.Group className="mb-3">
                           <Form.Label>Confirmar Contraseña</Form.Label>
-                          <Field
-                            name="confirmPassword"
+                          <Form.Control
                             type="password"
-                            placeholder="Confirme su contraseña"
-                            className={`form-control ${touched.confirmPassword && errors.confirmPassword ? 'is-invalid' : ''}`}
-                          />
-                          <ErrorMessage
                             name="confirmPassword"
-                            component="div"
-                            className="invalid-feedback"
+                            value={values.confirmPassword}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.confirmPassword && !!errors.confirmPassword}
+                            placeholder="Confirme su contraseña"
                           />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.confirmPassword}
+                          </Form.Control.Feedback>
                         </Form.Group>
                       </Col>
                     </Row>
@@ -249,7 +258,7 @@ const RegisterPage = () => {
                     <div className="text-center mt-3">
                       ¿Ya tiene una cuenta? <Link to="/login">Iniciar sesión</Link>
                     </div>
-                  </FormikForm>
+                  </Form>
                 )}
               </Formik>
             </Card.Body>

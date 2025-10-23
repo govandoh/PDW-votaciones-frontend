@@ -38,8 +38,8 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (values: LoginFormValues, { setSubmitting }: any) => {
     try {
       setError(null);
-      const user = await loginService(values);
-      login(user);
+      const response = await loginService(values);
+      login(response.user);
       navigate(from, { replace: true });
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error al iniciar sesión');

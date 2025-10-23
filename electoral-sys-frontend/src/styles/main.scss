@@ -1,10 +1,11 @@
 // Importamos la configuración de Bootstrap
+@use "./index" as *;
+
 @use "./bootstrap-config";
 
 // Importamos variables y mixins con namespaces
 @use "./variables" as vars;
 @use "./mixins" as mix;
-@use "./utils" as utils;
 
 // Componentes
 @use "./components/buttons";
@@ -16,7 +17,9 @@
 @use "./components/reports";
 
 // Layouts
-@use "./layouts/index";
+@use "./layouts/_auth";
+@use "./layouts/_voting";
+@use "./layouts/_dashboard";
 
 // Estilos globales
 body {

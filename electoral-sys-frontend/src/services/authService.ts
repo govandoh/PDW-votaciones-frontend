@@ -1,60 +1,47 @@
 import api from './api';
-import { setToken, setUser, removeToken, removeUser } from '../utils/auth';
 import { LoginFormValues, RegisterFormValues, User } from '../types';
+import { setToken } from '../utils/auth';
 
-// Interfaz para la respuesta de login
-interface LoginResponse {
-  message: string;
+// Tipo para la respuesta de autenticación
+interface AuthResponse {
   token: string;
   user: User;
 }
 
-// Interfaz para la respuesta de registro
-interface RegisterResponse {
-  message: string;
-  user: User;
-}
+// Tipo para los datos de registro (sin confirmPassword)
+export interface RegisterData extends Omit<RegisterFormValues, 'confirmPassword'> {}
 
-// Función para iniciar sesión
-export const login = async (credentials: LoginFormValues): Promise<User> => {
-  try {
-    const response = await api.post<LoginResponse>('/auth/login', credentials);
-    
-    // Guardar token y datos del usuario
+/**
+ * Inicia sesión con las credenciales proporcionadas
+ * @param credentials Datos del formulario de inicio de sesión
+ * @returns Respuesta con token y datos del usuario
+ */
+export const login = async (credentials: LoginFormValues): Promise<AuthResponse> => {
+  const response = await api.post<AuthResponse>('/auth/login', credentials);
+  
+  // Guardar el token en localStorage
+  if (response.data.token) {
     setToken(response.data.token);
-    setUser(response.data.user);
-    
-    return response.data.user;
-  } catch (error) {
-    throw error;
   }
+  
+  return response.data;
 };
 
-// Función para registrar un nuevo usuario
-export const register = async (userData: RegisterFormValues): Promise<User> => {
-  try {
-    const response = await api.post<RegisterResponse>('/auth/register', userData);
-    return response.data.user;
-  } catch (error) {
-    throw error;
-  }
+/**
+ * Registra un nuevo usuario
+ * @param userData Datos del formulario de registro (sin confirmPassword)
+ * @returns Respuesta con datos del usuario creado
+ */
+export const register = async (userData: RegisterData): Promise<User> => {
+  const response = await api.post<User>('/auth/register', userData);
+  return response.data;
 };
 
-// Función para verificar el token actual
-export const verifyToken = async (): Promise<User> => {
-  try {
-    const response = await api.get<{user: User}>('/auth/verify');
-    setUser(response.data.user);
-    return response.data.user;
-  } catch (error) {
-    removeToken();
-    removeUser();
-    throw error;
-  }
-};
-
-// Función para cerrar sesión
-export const logout = (): void => {
-  removeToken();
-  removeUser();
+/**
+ * Verifica si el token actual es válido y devuelve los datos del usuario
+ * @returns Datos del usuario si el token es válido
+ */
+export const verifyAuth = async (): Promise<User> => {
+  const response = await api.get<User>('/auth/me');
+  return response.data;
 };

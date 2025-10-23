@@ -5,6 +5,4 @@
 // Importamos nuestras variables personalizadas ANTES de cargar Bootstrap
 @use "./variables" as vars;
 
-// Cargamos Bootstrap con la nueva sintaxis
-// Cualquier variable personalizada se define arriba y se aplica automáticamente
-@forward "bootstrap/scss/bootstrap";
+@use "bootstrap/scss/bootstrap";
