@@ -12,12 +12,14 @@ const AdminCampaignFormPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(id ? true : false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Establecer valores iniciales con fechas por defecto
   const [initialValues, setInitialValues] = useState<CampaignFormValues>({
     titulo: '',
     descripcion: '',
     cantidadVotosPorVotante: 1,
-    fechaInicio: '',
-    fechaFin: ''
+    fechaInicio: new Date().toISOString().slice(0, 16), // Fecha actual en formato 'YYYY-MM-DDTHH:MM'
+    fechaFin: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16) // 1 semana después
   });
   
   const isEditing = !!id;
@@ -80,18 +82,23 @@ const AdminCampaignFormPage = () => {
   const handleSubmit = async (values: CampaignFormValues, { setSubmitting }: any) => {
     try {
       setError(null);
+      console.log("Enviando datos de campaña:", values);
       
-      if (isEditing) {
+      if (isEditing && id) {
         await updateCampaign(id, values);
+        console.log("Campaña actualizada exitosamente");
       } else {
         await createCampaign(values);
+        console.log("Nueva campaña creada exitosamente");
       }
       
       navigate('/admin/campaigns');
     } catch (error: any) {
       console.error('Error saving campaign:', error);
-      setError(error.response?.data?.message || 'Error al guardar la campaña');
-    } finally {
+      const errorMessage = error.response?.data?.message || 
+                          (error.response?.data?.errors && error.response.data.errors[0]?.msg) ||
+                          'Error al guardar la campaña';
+      setError(errorMessage);
       setSubmitting(false);
     }
   };
@@ -114,7 +121,7 @@ const AdminCampaignFormPage = () => {
             onSubmit={handleSubmit}
             enableReinitialize
           >
-            {({ isSubmitting }) => (
+            {({ isSubmitting, values, setFieldValue }) => (
               <FormikForm>
                 <Form.Group className="mb-3">
                   <Form.Label>Título</Form.Label>
@@ -206,6 +213,7 @@ const AdminCampaignFormPage = () => {
                   <Button
                     variant="outline-secondary"
                     onClick={() => navigate('/admin/campaigns')}
+                    type="button"
                   >
                     Cancelar
                   </Button>

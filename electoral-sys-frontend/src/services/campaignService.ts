@@ -1,5 +1,6 @@
 import api from './api';
 import { Campaign } from '../types';
+import { CampaignFormValues } from '../types';
 
 // Obtener todas las campañas
 export const getAllCampaigns = async (): Promise<Campaign[]> => {
@@ -23,10 +24,22 @@ export const getCampaignById = async (id: string) => {
   }
 };
 
+
+
 // Crear nueva campaña
-export const createCampaign = async (campaignData: any) => {
+export const createCampaign = async (campaignData: CampaignFormValues) => {
   try {
-    const response = await api.post('/campaigns', campaignData);
+     // Formatear datos para coincidir con lo que espera el backend
+    const formattedData = {
+      titulo: campaignData.titulo,
+      descripcion: campaignData.descripcion,
+      votosPorVotante: campaignData.cantidadVotosPorVotante, // Asegurarse que el nombre coincide con el backend
+      fechaInicio: new Date(campaignData.fechaInicio).toISOString(),
+      fechaFin: new Date(campaignData.fechaFin).toISOString(),
+      estado: 'inactiva' // Estado por defecto para nuevas campañas
+    };
+    console.log('Datos formateados para crear campaña:', formattedData);
+    const response = await api.post('/campaigns', formattedData);
     return response.data;
   } catch (error) {
     console.error('Error creating campaign:', error);
