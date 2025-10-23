@@ -1,49 +1,83 @@
 import api from './api';
-import { Campaign, CampaignDetail, CampaignFormValues } from '../types';
+import { Campaign } from '../types';
 
 // Obtener todas las campañas
 export const getAllCampaigns = async (): Promise<Campaign[]> => {
-  const response = await api.get<Campaign[]>('/campaigns');
-  return response.data;
+  try {
+    const response = await api.get('/campaigns');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching campaigns:', error);
+    throw error;
+  }
 };
 
-// Obtener una campaña por su ID
-export const getCampaignById = async (id: string): Promise<CampaignDetail> => {
-  const response = await api.get<CampaignDetail>(`/campaigns/${id}`);
-  return response.data;
+// Obtener campaña por ID
+export const getCampaignById = async (id: string) => {
+  try {
+    const response = await api.get(`/campaigns/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching campaign ${id}:`, error);
+    throw error;
+  }
 };
 
-// Crear una nueva campaña
-export const createCampaign = async (campaignData: CampaignFormValues): Promise<Campaign> => {
-  const response = await api.post<{message: string, campaign: Campaign}>('/campaigns', campaignData);
-  return response.data.campaign;
+// Crear nueva campaña
+export const createCampaign = async (campaignData: any) => {
+  try {
+    const response = await api.post('/campaigns', campaignData);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating campaign:', error);
+    throw error;
+  }
 };
 
-// Actualizar una campaña existente
-export const updateCampaign = async (id: string, campaignData: Partial<CampaignFormValues>): Promise<Campaign> => {
-  const response = await api.put<{message: string, campaign: Campaign}>(`/campaigns/${id}`, campaignData);
-  return response.data.campaign;
+// Actualizar campaña existente
+export const updateCampaign = async (id: string, campaignData: any) => {
+  try {
+    const response = await api.put(`/campaigns/${id}`, campaignData);
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating campaign ${id}:`, error);
+    throw error;
+  }
 };
 
-// Eliminar una campaña
-export const deleteCampaign = async (id: string): Promise<void> => {
-  await api.delete(`/campaigns/${id}`);
+// Actualizar el estado de una campaña (activar, desactivar o finalizar)
+export const updateCampaignStatus = async (id: string, estado: 'activa' | 'inactiva' | 'finalizada') => {
+  try {
+    console.log(`Actualizando estado de campaña ${id} a ${estado}`);
+    
+    // Llamada a la API utilizando el endpoint correcto
+    const response = await api.patch(`/campaigns/${id}/estado`, { estado });
+    
+    console.log('Respuesta de actualización de estado:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating campaign status ${id}:`, error);
+    throw error;
+  }
 };
 
-// Activar una campaña
-export const activateCampaign = async (id: string, durationMinutes: number): Promise<Campaign> => {
-  const response = await api.post<{message: string, campaign: Campaign}>(`/campaigns/${id}/activate`, { duration: durationMinutes });
-  return response.data.campaign;
+// Activar una campaña (helper function que usa updateCampaignStatus)
+export const activateCampaign = async (id: string) => {
+  return updateCampaignStatus(id, 'activa');
 };
 
-// Desactivar una campaña
-export const deactivateCampaign = async (id: string): Promise<Campaign> => {
-  const response = await api.post<{message: string, campaign: Campaign}>(`/campaigns/${id}/deactivate`);
-  return response.data.campaign;
+// Desactivar una campaña (helper function que usa updateCampaignStatus)
+export const deactivateCampaign = async (id: string) => {
+  return updateCampaignStatus(id, 'finalizada');
 };
 
-// Generar reporte de una campaña
-export const generateCampaignReport = async (id: string): Promise<any> => {
-  const response = await api.get(`/campaigns/${id}/report`);
-  return response.data;
+// Generar reporte de campaña
+export const generateCampaignReport = async (id: string) => {
+  try {
+    const response = await api.get(`/campaigns/${id}/report`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error generating report for campaign ${id}:`, error);
+    throw error;
+  }
 };

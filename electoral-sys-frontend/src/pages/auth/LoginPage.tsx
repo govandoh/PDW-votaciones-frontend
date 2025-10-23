@@ -1,20 +1,21 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { LoginFormValues } from '../../types';
-import { login as loginService } from '../../services/authService';
 import { useAuth } from '../../context/AuthContext';
+import { login as loginService } from '../../services/authService';
 
 const LoginPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
 
   const from = (location.state as any)?.from?.pathname || '/dashboard';
-
+  
   const initialValues: LoginFormValues = {
     numeroColegiado: '',
     dpi: '',
@@ -38,11 +39,38 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (values: LoginFormValues, { setSubmitting }: any) => {
     try {
       setError(null);
+      console.log('Intentando iniciar sesión con:', values);
+      
       const response = await loginService(values);
-      login(response.user);
-      navigate(from, { replace: true });
+      console.log('Login exitoso, respuesta:', response);
+      
+      if (response && response.user) {
+        // Llamar a la función de login del contexto con el usuario
+        login(response.user);
+        navigate(from, { replace: true });
+      } else {
+        console.error('La respuesta no contiene datos de usuario:', response);
+        setError('No se recibieron datos de usuario. Contacte al administrador.');
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al iniciar sesión');
+      console.error('Error completo durante el login:', err);
+      
+      // Extraer mensaje de error de manera más detallada
+      let errorMsg = 'Error al iniciar sesión';
+      
+      if (err.response?.data) {
+        if (typeof err.response.data === 'string') {
+          errorMsg = err.response.data;
+        } else if (err.response.data.message) {
+          errorMsg = err.response.data.message;
+        } else if (err.response.data.error) {
+          errorMsg = err.response.data.error;
+        }
+      } else if (err.message) {
+        errorMsg = err.message;
+      }
+      
+      setError(errorMsg);
     } finally {
       setSubmitting(false);
     }

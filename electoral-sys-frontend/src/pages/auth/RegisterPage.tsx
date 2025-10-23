@@ -69,7 +69,23 @@ const RegisterPage: React.FC = () => {
       }, 3000);
     } catch (err: any) {
       console.error("Error completo:", err); // Para depuración
-      setError(err.response?.data?.message || 'Error al registrar usuario');
+      
+      // Extraer mensaje de error de manera más detallada
+      let errorMsg = 'Error al registrar usuario';
+      
+      if (err.response?.data) {
+        if (typeof err.response.data === 'string') {
+          errorMsg = err.response.data;
+        } else if (err.response.data.message) {
+          errorMsg = err.response.data.message;
+        } else if (err.response.data.error) {
+          errorMsg = err.response.data.error;
+        }
+      } else if (err.message) {
+        errorMsg = err.message;
+      }
+      
+      setError(errorMsg);
       setSubmitting(false);
     }
   };

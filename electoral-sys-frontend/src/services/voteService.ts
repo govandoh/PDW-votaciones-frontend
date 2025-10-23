@@ -18,6 +18,6 @@ export const getUserVotes = async (campaignId: string): Promise<any> => {
 
 // Obtener resultados de una campaña
 export const getCampaignResults = async (campaignId: string): Promise<any> => {
-  const response = await api.get(`/votes/results/${campaignId}`);
+  const response = await api.get(`/votes/results/campaign/${campaignId}`);
   return response.data;
 };

@@ -15,12 +15,11 @@ export interface Campaign {
   titulo: string;
   descripcion: string;
   cantidadVotosPorVotante: number;
-  estado: 'activa' | 'inactiva' | 'finalizada';
   fechaInicio: string;
   fechaFin: string;
-  createdBy: string;
-  createdAt: string;
-  updatedAt: string;
+  estado: 'activa' | 'inactiva' | 'finalizada'; // Importante: debe coincidir con los estados del backend
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Candidate {

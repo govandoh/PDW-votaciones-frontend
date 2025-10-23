@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Container, Table, Button, Badge, Alert } from 'react-bootstrap';
+import { Container, Table, Button, Badge, Alert, Modal, Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { getAllCampaigns, activateCampaign, deactivateCampaign } from '../../services/campaignService';
+import { 
+  getAllCampaigns, 
+  updateCampaignStatus
+} from '../../services/campaignService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { Campaign } from '../../types';
 
@@ -10,16 +13,22 @@ const AdminCampaignsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [showActivateModal, setShowActivateModal] = useState(false);
+  const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
+  // Cargar campañas
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
         setLoading(true);
         const data = await getAllCampaigns();
+        console.log("Campañas cargadas:", data);
         setCampaigns(data);
-      } catch (error) {
+        setError(null);
+      } catch (error: any) {
         console.error('Error fetching campaigns:', error);
-        setError('Error al cargar las campañas');
+        setError('Error al cargar las campañas: ' + (error.message || 'Error desconocido'));
       } finally {
         setLoading(false);
       }
@@ -28,55 +37,86 @@ const AdminCampaignsPage = () => {
     fetchCampaigns();
   }, []);
   
-  // Función para activar una campaña
-  const handleActivate = async (id: string) => {
-    try {
-      setActionLoading(id);
-      // En un caso real, podrías mostrar un diálogo para pedir la duración
-      const durationMinutes = 60; // 1 hora por defecto
-      await activateCampaign(id, durationMinutes);
-      
-      // Actualizar la lista de campañas
-      const updatedCampaigns = campaigns.map(campaign => {
-        if (campaign._id === id) {
-          return { ...campaign, estado: 'activa' as 'activa' | 'inactiva' | 'finalizada' };
-        }
-        return campaign;
-      });
-      
-      setCampaigns(updatedCampaigns);
-      setError(null);
-    } catch (error) {
-      console.error('Error activating campaign:', error);
-      setError('No se pudo activar la campaña');
-    } finally {
-      setActionLoading(null);
-    }
+  // Función para abrir el modal de activación
+  const handleActivateClick = (campaignId: string) => {
+    setSelectedCampaign(campaignId);
+    setShowActivateModal(true);
   };
   
-  // Función para desactivar una campaña
-  const handleDeactivate = async (id: string) => {
-    try {
-      setActionLoading(id);
-      await deactivateCampaign(id);
-      
-      // Actualizar la lista de campañas
-      const updatedCampaigns = campaigns.map(campaign => {
-        if (campaign._id === id) {
-          return { ...campaign, estado: 'inactiva' as 'activa' | 'inactiva' | 'finalizada' };
-        }
-        return campaign;
-      });
-      
-      setCampaigns(updatedCampaigns);
-      setError(null);
-    } catch (error) {
-      console.error('Error deactivating campaign:', error);
-      setError('No se pudo desactivar la campaña');
-    } finally {
-      setActionLoading(null);
+  // Función para activar una campaña
+  const handleActivate = async () => {
+  if (!selectedCampaign) return;
+  
+  try {
+    setActionLoading(selectedCampaign);
+    
+    // Llamar al servicio para actualizar el estado
+    await updateCampaignStatus(selectedCampaign, 'activa');
+    
+    // CORRECCIÓN: Crear una copia explícita del array de campañas
+    const updatedCampaigns = [...campaigns]; // Crea una copia del array
+    
+    // Buscar y actualizar la campaña específica
+    const campaignIndex = updatedCampaigns.findIndex(c => c._id === selectedCampaign);
+    if (campaignIndex !== -1) {
+      updatedCampaigns[campaignIndex] = {
+        ...updatedCampaigns[campaignIndex],
+        estado: 'activa'
+      };
     }
-  };
+    
+    // Actualizar el estado con la copia modificada
+    setCampaigns(updatedCampaigns);
+    
+    setShowActivateModal(false);
+    setSuccessMessage('Campaña activada exitosamente');
+    
+    setTimeout(() => {
+      setSuccessMessage(null);
+    }, 3000);
+  } catch (error: any) {
+    console.error('Error activating campaign:', error);
+    setError('No se pudo activar la campaña: ' + (error.message || 'Error desconocido'));
+  } finally {
+    setActionLoading(null);
+  }
+};
+  
+  // Función para finalizar una campaña
+  const handleDeactivate = async (id: string) => {
+  try {
+    setActionLoading(id);
+    
+    // Llamar al servicio para actualizar el estado
+    await updateCampaignStatus(id, 'finalizada');
+    
+    // CORRECCIÓN: Crear una copia explícita del array de campañas
+    const updatedCampaigns = [...campaigns]; // Crea una copia del array
+    
+    // Buscar y actualizar la campaña específica
+    const campaignIndex = updatedCampaigns.findIndex(c => c._id === id);
+    if (campaignIndex !== -1) {
+      updatedCampaigns[campaignIndex] = {
+        ...updatedCampaigns[campaignIndex],
+        estado: 'finalizada'
+      };
+    }
+    
+    // Actualizar el estado con la copia modificada
+    setCampaigns(updatedCampaigns);
+    
+    setSuccessMessage('Campaña finalizada exitosamente');
+    
+    setTimeout(() => {
+      setSuccessMessage(null);
+    }, 3000);
+  } catch (error: any) {
+    console.error('Error finalizing campaign:', error);
+    setError('No se pudo finalizar la campaña: ' + (error.message || 'Error desconocido'));
+  } finally {
+    setActionLoading(null);
+  }
+};
 
   if (loading) {
     return <LoadingSpinner />;
@@ -86,14 +126,13 @@ const AdminCampaignsPage = () => {
     <Container>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1>Gestión de Campañas</h1>
-        <Link to="/admin/campaigns/create" className="text-decoration-none">
-          <Button variant="primary">
-            <i className="bi bi-plus-lg me-1"></i> Nueva Campaña
-          </Button>
+        <Link to="/admin/campaigns/create" className="btn btn-primary">
+          <i className="bi bi-plus-lg me-1"></i> Nueva Campaña
         </Link>
       </div>
       
-      {error && <Alert variant="danger">{error}</Alert>}
+      {error && <Alert variant="danger" onClose={() => setError(null)} dismissible>{error}</Alert>}
+      {successMessage && <Alert variant="success" onClose={() => setSuccessMessage(null)} dismissible>{successMessage}</Alert>}
       
       {campaigns.length === 0 ? (
         <Alert variant="info">
@@ -119,7 +158,7 @@ const AdminCampaignsPage = () => {
                   <Badge 
                     bg={
                       campaign.estado === 'activa' ? 'success' : 
-                      campaign.estado === 'finalizada' ? 'info' : 'secondary'
+                      campaign.estado === 'finalizada' ? 'secondary' : 'warning'
                     }
                   >
                     {campaign.estado === 'activa' ? 'Activa' : 
@@ -133,21 +172,16 @@ const AdminCampaignsPage = () => {
                   <div className="d-flex gap-2">
                     <Link 
                       to={`/admin/campaigns/edit/${campaign._id}`}
-                      className="text-decoration-none"
+                      className="btn btn-outline-primary btn-sm"
                     >
-                      <Button 
-                        variant="outline-primary" 
-                        size="sm"
-                      >
-                        Editar
-                      </Button>
+                      Editar
                     </Link>
                     
                     {campaign.estado === 'inactiva' && (
                       <Button 
                         variant="outline-success" 
                         size="sm"
-                        onClick={() => handleActivate(campaign._id)}
+                        onClick={() => handleActivateClick(campaign._id)}
                         disabled={actionLoading === campaign._id}
                       >
                         {actionLoading === campaign._id ? 'Activando...' : 'Activar'}
@@ -161,20 +195,15 @@ const AdminCampaignsPage = () => {
                         onClick={() => handleDeactivate(campaign._id)}
                         disabled={actionLoading === campaign._id}
                       >
-                        {actionLoading === campaign._id ? 'Desactivando...' : 'Desactivar'}
+                        {actionLoading === campaign._id ? 'Finalizando...' : 'Finalizar'}
                       </Button>
                     )}
                     
-                    <Link
+                    <Link 
                       to={`/admin/reports?campaignId=${campaign._id}`}
-                      className="text-decoration-none"
+                      className="btn btn-outline-info btn-sm"
                     >
-                      <Button 
-                        variant="outline-info" 
-                        size="sm"
-                      >
-                        Reporte
-                      </Button>
+                      Reporte
                     </Link>
                   </div>
                 </td>
@@ -183,6 +212,25 @@ const AdminCampaignsPage = () => {
           </tbody>
         </Table>
       )}
+      
+      {/* Modal para activar campaña */}
+      <Modal show={showActivateModal} onHide={() => setShowActivateModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Activar Campaña</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>¿Está seguro que desea activar esta campaña?</p>
+          <p>Una vez activada, los usuarios podrán votar en ella.</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowActivateModal(false)}>
+            Cancelar
+          </Button>
+          <Button variant="primary" onClick={handleActivate} disabled={actionLoading === selectedCampaign}>
+            {actionLoading === selectedCampaign ? 'Activando...' : 'Activar Campaña'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };
