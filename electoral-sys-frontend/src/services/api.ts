@@ -2,7 +2,9 @@ import axios from 'axios';
 import { getToken, removeToken } from '../utils/auth';
 
 // Obtener la URL base de la API desde las variables de entorno
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://electoral-sys-api.onrender.com/api';
+export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'https://electoral-sys-api.onrender.com';
+const API_URL = API_BASE_URL;
 
 console.log('API URL:', API_URL); // Para verificar que la URL está bien configurada
 
