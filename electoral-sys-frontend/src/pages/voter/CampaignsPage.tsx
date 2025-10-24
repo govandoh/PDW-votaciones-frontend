@@ -84,7 +84,7 @@ const CampaignsPage = () => {
                   <option value="all">Todas las campañas</option>
                   <option value="activa">Campañas activas</option>
                   <option value="inactiva">Campañas inactivas</option>
-                  <option value="completada">Campañas completadas</option>
+                  <option value="finalizada">Campañas finalizadas</option>
                 </Form.Select>
               </Form.Group>
             </Col>

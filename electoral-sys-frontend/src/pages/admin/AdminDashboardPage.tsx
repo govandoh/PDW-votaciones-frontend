@@ -202,7 +202,7 @@ const AdminDashboardPage = () => {
                 </Card.Body>
                 <Card.Footer className="d-flex justify-content-between align-items-center bg-white">
                   <small className="text-muted">
-                    {new Date(campaign.createdAt).toLocaleDateString()}
+                    Creada: {campaign.createdAt ? new Date(campaign.createdAt).toLocaleDateString() : 'Sin fecha'}
                   </small>
                   <Link 
                     to={`/admin/campaigns/edit/${campaign._id}`}
