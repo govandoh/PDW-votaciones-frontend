@@ -57,9 +57,6 @@ const RegisterPage: React.FC = () => {
       
       // Remover confirmPassword antes de enviar los datos
       const { confirmPassword, ...registerData } = values;
-      
-      console.log("Datos a enviar:", registerData); // Para depuración
-      
       await register(registerData);
       setSuccess('¡Registro exitoso! Ahora puede iniciar sesión.');
       

@@ -6,6 +6,11 @@ const ProfilePage = () => {
   const { user } = useAuth();
   const [showDetails, setShowDetails] = useState<boolean>(false);
   
+  // Verificar qué campos están disponibles
+  const hasDpi = user && (user as any).dpi;
+  const hasFechaNacimiento = user && (user as any).fechaNacimiento;
+  const hasAdditionalDetails = hasDpi || hasFechaNacimiento;
+  
   if (!user) {
     return (
       <Container>
@@ -48,65 +53,90 @@ const ProfilePage = () => {
                     Rol: <strong>{user.role === 'admin' ? 'Administrador' : 'Votante'}</strong>
                   </p>
                   
-                  <Button 
-                    variant="outline-secondary" 
-                    size="sm"
-                    onClick={() => setShowDetails(!showDetails)}
-                    className="mt-2"
-                  >
-                    {showDetails ? 'Ocultar detalles' : 'Mostrar más detalles'}
-                  </Button>
+                  {hasAdditionalDetails && (
+                    <Button 
+                      variant="outline-secondary" 
+                      size="sm"
+                      onClick={() => setShowDetails(!showDetails)}
+                      className="mt-2"
+                    >
+                      {showDetails ? 'Ocultar detalles' : 'Mostrar más detalles'}
+                    </Button>
+                  )}
                 </Col>
               </Row>
               
-              {showDetails && (
+              {showDetails && hasAdditionalDetails && (
                 <div className="border-top pt-3">
                   <Row>
-                    <Col md={6} className="mb-3">
-                      <Form.Group>
-                        <Form.Label className="fw-bold">DPI</Form.Label>
-                        <p>{user.dpi}</p>
-                      </Form.Group>
-                    </Col>
+                    {hasDpi && (
+                      <Col md={6} className="mb-3">
+                        <Form.Group>
+                          <Form.Label className="fw-bold">DPI</Form.Label>
+                          <p>{(user as any).dpi}</p>
+                        </Form.Group>
+                      </Col>
+                    )}
                     
-                    <Col md={6} className="mb-3">
-                      <Form.Group>
-                        <Form.Label className="fw-bold">Fecha de Nacimiento</Form.Label>
-                        <p>{new Date(user.fechaNacimiento).toLocaleDateString()}</p>
-                      </Form.Group>
-                    </Col>
+                    {hasFechaNacimiento && (
+                      <Col md={6} className="mb-3">
+                        <Form.Group>
+                          <Form.Label className="fw-bold">Fecha de Nacimiento</Form.Label>
+                          <p>
+                            {(() => {
+                              const fechaNacimiento = (user as any).fechaNacimiento;
+                              
+                              try {
+                                // Si es una cadena en formato DD-MM-YYYY
+                                if (typeof fechaNacimiento === 'string' && fechaNacimiento.includes('-')) {
+                                  const parts = fechaNacimiento.split('-');
+                                  
+                                  // Formato DD-MM-YYYY
+                                  if (parts.length === 3 && parts[0].length <= 2) {
+                                    const [day, month, year] = parts;
+                                    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+                                    
+                                    if (!isNaN(date.getTime())) {
+                                      return date.toLocaleDateString('es-GT', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
+                                      });
+                                    }
+                                  }
+                                }
+                                
+                                // Intentar parsear como fecha ISO o cualquier otro formato
+                                const date = new Date(fechaNacimiento);
+                                
+                                if (!isNaN(date.getTime())) {
+                                  return date.toLocaleDateString('es-GT', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                  });
+                                }
+                                
+                                // Si no se puede parsear, mostrar el valor original
+                                return fechaNacimiento;
+                              } catch (error) {
+                                // Si hay error, mostrar el valor original
+                                return fechaNacimiento;
+                              }
+                            })()}
+                          </p>
+                        </Form.Group>
+                      </Col>
+                    )}
                   </Row>
+                  
+                  {!hasDpi && !hasFechaNacimiento && (
+                    <Alert variant="info" className="mt-3">
+                      No hay información adicional disponible en este momento.
+                    </Alert>
+                  )}
                 </div>
               )}
-            </Card.Body>
-          </Card>
-        </Col>
-        
-        <Col md={4}>
-          <Card className="shadow-sm mb-4">
-            <Card.Header className="bg-light">
-              <h4 className="mb-0">Acciones</h4>
-            </Card.Header>
-            <Card.Body>
-              <div className="d-grid gap-2">
-                <Button variant="outline-primary">
-                  Cambiar contraseña
-                </Button>
-                <Button variant="outline-secondary">
-                  Actualizar información
-                </Button>
-              </div>
-            </Card.Body>
-          </Card>
-          
-          <Card className="shadow-sm">
-            <Card.Header className="bg-light">
-              <h4 className="mb-0">Estadísticas</h4>
-            </Card.Header>
-            <Card.Body>
-              <p className="mb-2">
-                <strong>Participación:</strong> Los datos de participación se cargarán próximamente.
-              </p>
             </Card.Body>
           </Card>
         </Col>

@@ -17,12 +17,6 @@ const api = axios.create({
 // Interceptor para agregar el token a cada petición
 api.interceptors.request.use(
   (config) => {
-    // Para depuración
-    console.log(`Request to ${config.url}:`, {
-      method: config.method,
-      data: config.data,
-    });
-    
     const token = getToken();
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -37,7 +31,7 @@ api.interceptors.request.use(
 // Interceptor para manejar respuestas
 api.interceptors.response.use(
   (response) => {
-    console.log(`Response from ${response.config.url}:`, response.data);
+    console.log(`Response from ${response.config.url}:`, response.statusText);
     return response;
   },
   (error) => {

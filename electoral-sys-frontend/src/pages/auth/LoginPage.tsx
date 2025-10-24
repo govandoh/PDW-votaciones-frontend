@@ -39,11 +39,7 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (values: LoginFormValues, { setSubmitting }: any) => {
     try {
       setError(null);
-      console.log('Intentando iniciar sesión con:', values);
-      
       const response = await loginService(values);
-      console.log('Login exitoso, respuesta:', response);
-      
       if (response && response.user) {
         // Llamar a la función de login del contexto con el usuario
         login(response.user);

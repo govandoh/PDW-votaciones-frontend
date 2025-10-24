@@ -20,9 +20,7 @@ export interface RegisterData extends Omit<RegisterFormValues, 'confirmPassword'
  * @returns Respuesta con token y datos del usuario
  */
 export const login = async (credentials: LoginFormValues): Promise<AuthResponse> => {
-  try {
-    console.log('Enviando credenciales:', credentials);
-    
+  try {    
     // Formatear fecha a "DD-MM-YYYY" si es necesario
     let fechaNacimiento = credentials.fechaNacimiento;
     if (fechaNacimiento) {
@@ -50,16 +48,9 @@ export const login = async (credentials: LoginFormValues): Promise<AuthResponse>
       fechaNacimiento: fechaNacimiento,
       password: credentials.password
     };
-    
-    console.log('Datos a enviar para login:', JSON.stringify(loginData));
-    
-    // Ruta correcta observada en Postman
     const route = '/auth/login';
-    
-    // Realizar la solicitud directa con los datos completos que espera el backend
-    console.log(`Intentando login con ruta: ${route} y datos:`, loginData);
     const response = await api.post<AuthResponse>(route, loginData);
-    console.log('Respuesta del login:', response.data);
+    console.log('Respuesta del login:', response.statusText);
     
     const responseData = response.data;
     
@@ -132,8 +123,6 @@ export const login = async (credentials: LoginFormValues): Promise<AuthResponse>
  */
 export const register = async (userData: RegisterData): Promise<any> => {
   try {
-    console.log('Datos originales de registro:', userData);
-    
     // Formatear fecha de nacimiento a "DD-MM-YYYY"
     let fechaNacimiento = userData.fechaNacimiento;
     if (fechaNacimiento) {
@@ -165,14 +154,11 @@ export const register = async (userData: RegisterData): Promise<any> => {
       password: userData.password
     };
     
-    console.log('Datos a enviar para registro:', JSON.stringify(registerData));
+    //console.log('Datos a enviar para registro:', JSON.stringify(registerData));
     
     // Ruta correcta observada en Postman
     const route = '/auth/register';
-    
-    console.log(`Intentando registro con ruta: ${route}`);
     const response = await api.post(route, registerData);
-    console.log('Respuesta del registro:', response.data);
     
     return response.data;
   } catch (error: any) {
