@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { getCandidatesByCampaign, deleteCandidate } from '../../services/candidateService';
 import { getAllCampaigns } from '../../services/campaignService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { getCandidateImageByFileName } from '../../config/candidateImages';
 import { Candidate, Campaign } from '../../types';
 
 const AdminCandidatesPage = () => {
@@ -175,7 +176,7 @@ const AdminCandidatesPage = () => {
                         <div style={{ height: '200px', overflow: 'hidden' }}>
                           <Card.Img 
                             variant="top" 
-                            src={candidate.foto || 'https://via.placeholder.com/300x200?text=Candidato'}
+                            src={getCandidateImageByFileName(candidate.foto || 'default')}
                             className="candidate-image"
                             alt={candidate.nombre}
                             style={{ objectFit: 'cover', height: '100%', width: '100%' }}

@@ -103,7 +103,7 @@ export interface CampaignFormValues {
 export interface CandidateFormValues {
   nombre: string;
   descripcion: string;
-  foto: File | string | null;
+  foto: string; // Ruta de la imagen del proyecto
   campañaId: string;
   createdAt?: string;
   updatedAt?: string;

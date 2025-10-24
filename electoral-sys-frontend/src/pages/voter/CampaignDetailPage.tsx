@@ -7,6 +7,7 @@ import { getCampaignById } from '../../services/campaignService';
 import { castVote } from '../../services/voteService';
 import socketService from '../../services/socketService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { getCandidateImageByFileName } from '../../config/candidateImages';
 import { CampaignDetail, VoteResult } from '../../types';
 
 // Registrar componentes de ChartJS
@@ -391,7 +392,7 @@ const CampaignDetailPage = () => {
                       <div style={{ height: '180px', overflow: 'hidden', backgroundColor: '#f8f9fa' }}>
                         <Card.Img 
                           variant="top" 
-                          src={candidate.foto || 'https://via.placeholder.com/300x180?text=Candidato'}
+                          src={getCandidateImageByFileName(candidate.foto || 'default')}
                           className="candidate-image"
                           alt={candidate.nombre}
                           style={{ objectFit: 'cover', height: '100%', width: '100%' }}

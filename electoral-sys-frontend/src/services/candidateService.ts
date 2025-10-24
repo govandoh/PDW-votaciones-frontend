@@ -1,18 +1,8 @@
 import api from './api';
 import { Candidate, CandidateFormValues } from '../types';
 
-// URL del ícono por defecto de usuario
-const DEFAULT_USER_ICON = 'https://cdn-icons-png.flaticon.com/512/1946/1946429.png';
-
-// Convertir archivo a Base64
-const fileToBase64 = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = error => reject(error);
-  });
-};
+// Nota: Las imágenes ahora se manejan como rutas del proyecto
+// La selección de imágenes se hace a través del componente ImageSelector
 
 // Obtener todos los candidatos
 export const getAllCandidates = async (): Promise<Candidate[]> => {
@@ -29,7 +19,6 @@ export const getAllCandidates = async (): Promise<Candidate[]> => {
 export const getCandidatesByCampaign = async (campaignId: string): Promise<Candidate[]> => {
   try {
     const response = await api.get(`/candidates/campaign/${campaignId}`);
-    console.log(`Candidatos obtenidos para campaña ${campaignId}:`, response.data);
     return response.data;
   } catch (error) {
     console.error(`Error al obtener candidatos por campaña ${campaignId}:`, error);
@@ -51,39 +40,15 @@ export const getCandidateById = async (id: string): Promise<Candidate> => {
 // Crear un nuevo candidato
 export const createCandidate = async (candidateData: CandidateFormValues): Promise<Candidate> => {
   try {
-    let fotoUrl = DEFAULT_USER_ICON;
-
-    // Si hay una foto y es una cadena base64, usarla directamente
-    if (typeof candidateData.foto === 'string') {
-      fotoUrl = candidateData.foto;
-    }
-    // Si hay una foto y es un File, convertirla a Base64
-    else if (candidateData.foto instanceof File) {
-      try {
-        fotoUrl = await fileToBase64(candidateData.foto);
-      } catch (error) {
-        console.error('Error al convertir la imagen:', error);
-        // Si hay error al procesar la imagen, usar el ícono por defecto
-        fotoUrl = DEFAULT_USER_ICON;
-      }
-    }
-
-    // Preparar los datos para enviar - USAR campañaId en lugar de campaña
+    // La foto ahora es una ruta de imagen del proyecto
     const requestData = {
       nombre: candidateData.nombre,
       descripcion: candidateData.descripcion,
-      campañaId: candidateData.campañaId,  // ← CAMBIO AQUÍ
-      foto: fotoUrl
+      campañaId: candidateData.campañaId,
+      foto: candidateData.foto || '' // Usar la ruta de la imagen seleccionada
     };
-
-    console.log('Enviando datos del candidato:', {
-      ...requestData,
-      foto: requestData.foto.substring(0, 50) + '...' // Log parcial de la imagen para no saturar la consola
-    });
     
     const response = await api.post('/candidates', requestData);
-
-    console.log('Respuesta del servidor:', response.data);
     return response.data.candidate;
   } catch (error: any) {
     console.error('Error al crear candidato:', error);
@@ -97,36 +62,15 @@ export const createCandidate = async (candidateData: CandidateFormValues): Promi
 // Actualizar un candidato existente
 export const updateCandidate = async (id: string, candidateData: CandidateFormValues): Promise<Candidate> => {
   try {
-    // Preparar los datos base para actualizar
-    const updateData: any = {
+    // Preparar los datos para actualizar
+    const updateData = {
       nombre: candidateData.nombre,
       descripcion: candidateData.descripcion,
-      campañaId: candidateData.campañaId  // ← CAMBIO AQUÍ TAMBIÉN
+      campañaId: candidateData.campañaId,
+      foto: candidateData.foto || '' // Usar la ruta de la imagen seleccionada
     };
-
-    // Si hay una nueva foto y es una cadena base64, usarla directamente
-    if (typeof candidateData.foto === 'string') {
-      updateData.foto = candidateData.foto;
-    }
-    // Si hay una nueva foto y es un File, procesarla
-    else if (candidateData.foto instanceof File) {
-      try {
-        updateData.foto = await fileToBase64(candidateData.foto);
-      } catch (error) {
-        console.error('Error al convertir la imagen:', error);
-        // En caso de error al procesar la imagen, no incluir el campo foto
-        // para mantener la foto existente
-      }
-    }
-
-    console.log(`Actualizando candidato ${id}:`, {
-      ...updateData,
-      foto: updateData.foto ? 'Imagen presente' : 'Sin cambios en la imagen'
-    });
     
     const response = await api.put(`/candidates/${id}`, updateData);
-
-    console.log('Respuesta del servidor:', response.data);
     return response.data.candidate;
   } catch (error) {
     console.error(`Error al actualizar candidato ${id}:`, error);
@@ -138,7 +82,6 @@ export const updateCandidate = async (id: string, candidateData: CandidateFormVa
 export const deleteCandidate = async (id: string): Promise<void> => {
   try {
     await api.delete(`/candidates/${id}`);
-    console.log(`Candidato ${id} eliminado exitosamente`);
   } catch (error) {
     console.error(`Error al eliminar candidato ${id}:`, error);
     throw error;

@@ -1,0 +1,54 @@
+.image-grid {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 0.5rem;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+
+    &:hover {
+      background: #555;
+    }
+  }
+}
+
+.image-option {
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: var(--bs-primary);
+  }
+
+  &.selected {
+    border-color: var(--bs-primary);
+    box-shadow: 0 4px 16px rgba(var(--bs-primary-rgb), 0.3);
+    transform: translateY(-2px);
+
+    .card-body {
+      background-color: rgba(var(--bs-primary-rgb), 0.1);
+      font-weight: 600;
+      color: var(--bs-primary);
+    }
+  }
+
+  .card-img-top {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover .card-img-top {
+    transform: scale(1.05);
+  }
+}

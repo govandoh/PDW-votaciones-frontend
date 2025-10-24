@@ -7,6 +7,8 @@ import { PersonCircle } from 'react-bootstrap-icons';
 import { createCandidate, updateCandidate, getCandidateById } from '../../services/candidateService';
 import { getAllCampaigns } from '../../services/campaignService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import ImageSelector from '../../components/admin/ImageSelector';
+import { DEFAULT_CANDIDATE_IMAGE, getCandidateImageByFileName } from '../../config/candidateImages';
 import { Campaign, CandidateFormValues } from '../../types';
 
 const AdminCandidateFormPage = () => {
@@ -18,11 +20,13 @@ const AdminCandidateFormPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<string>(DEFAULT_CANDIDATE_IMAGE);
+  const [showImageSelector, setShowImageSelector] = useState(false);
+  const [currentSetFieldValue, setCurrentSetFieldValue] = useState<((field: string, value: any) => void) | null>(null);
   const [initialValues, setInitialValues] = useState<CandidateFormValues>({
     nombre: '',
     descripcion: '',
-    foto: null,
+    foto: 'default', // Guardamos el fileName, no la ruta
     campañaId: preselectedCampaignId || ''
   });
   
@@ -39,13 +43,18 @@ const AdminCandidateFormPage = () => {
         
         if (isEditing && id) {
           const candidateData = await getCandidateById(id);
+          const candidateFoto = candidateData.foto || 'default';
+          
           setInitialValues({
             nombre: candidateData.nombre,
             descripcion: candidateData.descripcion,
-            foto: null,
+            foto: candidateFoto, // fileName de la BD
             campañaId: candidateData.campaña
           });
-          setPreviewImage(candidateData.foto);
+          
+          // Convertir fileName a ruta para preview
+          const previewPath = getCandidateImageByFileName(candidateFoto);
+          setPreviewImage(previewPath);
         }
         
       } catch (error: any) {
@@ -68,56 +77,24 @@ const AdminCandidateFormPage = () => {
       .max(500, 'La descripción no puede exceder los 500 caracteres'),
     campañaId: Yup.string()
       .required('Debe seleccionar una campaña'),
-    foto: Yup.mixed()
-      .nullable()
-      .test('fileSize', 'La imagen es demasiado grande (máximo 2MB)', 
-        value => !value || (value instanceof File && value.size <= 2 * 1024 * 1024))
-      .test('fileType', 'Solo se permiten imágenes (jpg, jpeg, png)', 
-        value => !value || (value instanceof File && ['image/jpeg', 'image/jpg', 'image/png'].includes(value.type)))
+    foto: Yup.string()
+      .required('Debe seleccionar una imagen')
   });
   
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>, setFieldValue: (field: string, value: any) => void) => {
-    const file = event.currentTarget.files?.[0];
-    if (!file) {
-      setFieldValue('foto', null);
-      setPreviewImage(null);
-      return;
+  const handleImageSelect = (fileName: string, imageId: string) => {
+    // Obtener la ruta para el preview
+    const imagePath = getCandidateImageByFileName(fileName);
+    
+    setPreviewImage(imagePath);
+    if (currentSetFieldValue) {
+      currentSetFieldValue('foto', fileName); // Guardamos el fileName, no la ruta
     }
+    setError(null);
+  };
 
-    // Validar tipo de archivo
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (!validTypes.includes(file.type)) {
-      setError('El archivo debe ser una imagen (jpg, jpeg o png)');
-      setFieldValue('foto', null);
-      setPreviewImage(null);
-      return;
-    }
-
-    // Validar tamaño del archivo (2MB)
-    const maxSize = 2 * 1024 * 1024;
-    if (file.size > maxSize) {
-      setError('La imagen es demasiado grande (máximo 2MB)');
-      setFieldValue('foto', null);
-      setPreviewImage(null);
-      return;
-    }
-
-    try {
-      // Crear preview de la imagen
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result as string;
-        setPreviewImage(result);
-        setFieldValue('foto', result);
-      };
-      reader.readAsDataURL(file);
-      setError(null);
-    } catch (error) {
-      console.error('Error al procesar el archivo:', error);
-      setError('Error al procesar la imagen');
-      setFieldValue('foto', null);
-      setPreviewImage(null);
-    }
+  const handleOpenImageSelector = (setFieldValue: (field: string, value: any) => void) => {
+    setCurrentSetFieldValue(() => setFieldValue);
+    setShowImageSelector(true);
   };
   
   const handleSubmit = async (values: CandidateFormValues, { setSubmitting }: any) => {
@@ -221,36 +198,34 @@ const AdminCandidateFormPage = () => {
                   
                   <Col md={4}>
                     <Form.Group className="mb-4" controlId="candidatePhoto">
-                      <Form.Label>Foto</Form.Label>
+                      <Form.Label>Foto del Candidato</Form.Label>
                       <div className="mb-3 candidate-photo-preview">
-                        {previewImage ? (
-                          <Image 
-                            src={previewImage} 
-                            alt="Vista previa de la foto del candidato" 
-                            thumbnail 
-                            className="w-100 preview-image"
-                            style={{ maxHeight: '200px', objectFit: 'cover' }}
-                          />
-                        ) : (
-                          <div 
-                            className="bg-light d-flex align-items-center justify-content-center text-center placeholder-wrapper"
-                            style={{ height: '200px', border: '1px solid #dee2e6', borderRadius: '0.25rem' }}
-                          >
-                            <PersonCircle size={64} className="text-secondary" />
-                          </div>
-                        )}
+                        <Image 
+                          src={previewImage} 
+                          alt="Foto del candidato seleccionada" 
+                          thumbnail 
+                          className="w-100 preview-image"
+                          style={{ maxHeight: '200px', objectFit: 'cover' }}
+                        />
                       </div>
-                      <Form.Control
-                        type="file"
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFileChange(e, setFieldValue)}
-                        accept="image/jpeg,image/png,image/jpg"
-                        isInvalid={touched.foto && !!errors.foto}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        {errors.foto}
-                      </Form.Control.Feedback>
-                      <Form.Text className="text-muted mt-2">
-                        Sube una imagen del candidato (JPG, JPEG o PNG, máx. 2MB)
+                      <Button
+                        variant="outline-primary"
+                        onClick={() => handleOpenImageSelector(setFieldValue)}
+                        className="w-100"
+                      >
+                        <i className="bi bi-images me-2"></i>
+                        Seleccionar Imagen
+                      </Button>
+                      {touched.foto && errors.foto && (
+                        <div className="text-danger small mt-2">
+                          {errors.foto}
+                        </div>
+                      )}
+                      <Form.Text className="text-muted mt-2 d-block">
+                        Selecciona una imagen predefinida del proyecto
+                      </Form.Text>
+                      <Form.Text className="text-muted mt-1 d-block">
+                        Imagen actual: {values.foto ? 'Seleccionada' : 'Ninguna'}
                       </Form.Text>
                     </Form.Group>
                   </Col>
@@ -289,6 +264,14 @@ const AdminCandidateFormPage = () => {
               </Form>
             )}
           </Formik>
+
+          {/* Modal de selección de imagen */}
+          <ImageSelector
+            show={showImageSelector}
+            onHide={() => setShowImageSelector(false)}
+            onSelect={handleImageSelect}
+            currentImage={previewImage}
+          />
         </Card.Body>
       </Card>
     </Container>

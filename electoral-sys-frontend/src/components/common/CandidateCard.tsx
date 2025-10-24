@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, Button } from 'react-bootstrap';
+import { getCandidateImageByFileName } from '../../config/candidateImages';
 
 // Definición de la interfaz para las props
 interface CandidateCardProps {
@@ -43,7 +44,10 @@ const CandidateCard: React.FC<CandidateCardProps> = ({
   const candidateName = candidate.nombre || candidate.name || '';
   const candidateDesc = candidate.descripcion || candidate.position || '';
   const candidateParty = candidate.party || '';
-  const candidatePhoto = candidate.foto || candidate.photo || 'https://via.placeholder.com/300x180?text=Candidato';
+  const candidatePhotoFileName = candidate.foto || candidate.photo || 'default';
+  
+  // Convertir fileName a ruta de imagen
+  const candidatePhoto = getCandidateImageByFileName(candidatePhotoFileName);
 
   return (
     <Card className="candidate-card h-100 shadow-sm">
