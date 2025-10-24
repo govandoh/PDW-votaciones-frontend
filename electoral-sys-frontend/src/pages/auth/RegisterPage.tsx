@@ -9,6 +9,8 @@ import { register } from '../../services/authService';
 const RegisterPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
   const navigate = useNavigate();
   
   const initialValues: RegisterFormValues = {
@@ -222,18 +224,32 @@ const RegisterPage: React.FC = () => {
                       <Col md={6}>
                         <Form.Group className="mb-3">
                           <Form.Label>Contraseña</Form.Label>
-                          <Form.Control
-                            type="password"
-                            name="password"
-                            value={values.password}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            isInvalid={touched.password && !!errors.password}
-                            placeholder="Ingrese su contraseña"
-                          />
-                          <Form.Control.Feedback type="invalid">
-                            {errors.password}
-                          </Form.Control.Feedback>
+                          <div className="position-relative">
+                            <Form.Control
+                              type={showPassword ? "text" : "password"}
+                              name="password"
+                              value={values.password}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              isInvalid={touched.password && !!errors.password}
+                              placeholder="Ingrese su contraseña"
+                              style={{ paddingRight: '40px' }}
+                            />
+                            <Button
+                              variant="link"
+                              className="position-absolute top-50 end-0 translate-middle-y text-decoration-none text-secondary"
+                              style={{ zIndex: 10, padding: '0.375rem 0.75rem', fontSize: '1.2rem' }}
+                              onClick={() => setShowPassword(!showPassword)}
+                              type="button"
+                              tabIndex={-1}
+                              title={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                            >
+                              {showPassword ? '○' : '●'}
+                            </Button>
+                            <Form.Control.Feedback type="invalid">
+                              {errors.password}
+                            </Form.Control.Feedback>
+                          </div>
                           <Form.Text className="text-muted">
                             La contraseña debe tener al menos 8 caracteres e incluir una letra mayúscula, una minúscula y un número.
                           </Form.Text>
@@ -243,18 +259,32 @@ const RegisterPage: React.FC = () => {
                       <Col md={6}>
                         <Form.Group className="mb-3">
                           <Form.Label>Confirmar Contraseña</Form.Label>
-                          <Form.Control
-                            type="password"
-                            name="confirmPassword"
-                            value={values.confirmPassword}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            isInvalid={touched.confirmPassword && !!errors.confirmPassword}
-                            placeholder="Confirme su contraseña"
-                          />
-                          <Form.Control.Feedback type="invalid">
-                            {errors.confirmPassword}
-                          </Form.Control.Feedback>
+                          <div className="position-relative">
+                            <Form.Control
+                              type={showConfirmPassword ? "text" : "password"}
+                              name="confirmPassword"
+                              value={values.confirmPassword}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              isInvalid={touched.confirmPassword && !!errors.confirmPassword}
+                              placeholder="Confirme su contraseña"
+                              style={{ paddingRight: '40px' }}
+                            />
+                            <Button
+                              variant="link"
+                              className="position-absolute top-50 end-0 translate-middle-y text-decoration-none text-secondary"
+                              style={{ zIndex: 10, padding: '0.375rem 0.75rem', fontSize: '1.2rem' }}
+                              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                              type="button"
+                              tabIndex={-1}
+                              title={showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                            >
+                              {showConfirmPassword ? '○' : '●'}
+                            </Button>
+                            <Form.Control.Feedback type="invalid">
+                              {errors.confirmPassword}
+                            </Form.Control.Feedback>
+                          </div>
                         </Form.Group>
                       </Col>
                     </Row>

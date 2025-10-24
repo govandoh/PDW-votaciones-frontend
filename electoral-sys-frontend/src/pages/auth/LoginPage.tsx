@@ -10,6 +10,7 @@ import { login as loginService } from '../../services/authService';
 const LoginPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
@@ -138,18 +139,32 @@ const LoginPage: React.FC = () => {
                     
                     <Form.Group className="mb-4">
                       <Form.Label>Contraseña</Form.Label>
-                      <Form.Control
-                        type="password"
-                        name="password"
-                        value={values.password}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        isInvalid={touched.password && !!errors.password}
-                        placeholder="Ingrese su contraseña"
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        {errors.password}
-                      </Form.Control.Feedback>
+                      <div className="position-relative">
+                        <Form.Control
+                          type={showPassword ? "text" : "password"}
+                          name="password"
+                          value={values.password}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          isInvalid={touched.password && !!errors.password}
+                          placeholder="Ingrese su contraseña"
+                          style={{ paddingRight: '40px' }}
+                        />
+                        <Button
+                          variant="link"
+                          className="position-absolute top-50 end-0 translate-middle-y text-decoration-none text-secondary"
+                          style={{ zIndex: 10, padding: '0.375rem 0.75rem', fontSize: '1.2rem' }}
+                          onClick={() => setShowPassword(!showPassword)}
+                          type="button"
+                          tabIndex={-1}
+                          title={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                        >
+                          {showPassword ? '○' : '●'}
+                        </Button>
+                        <Form.Control.Feedback type="invalid">
+                          {errors.password}
+                        </Form.Control.Feedback>
+                      </div>
                     </Form.Group>
                     
                     <Button
