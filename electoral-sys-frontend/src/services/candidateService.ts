@@ -53,8 +53,12 @@ export const createCandidate = async (candidateData: CandidateFormValues): Promi
   try {
     let fotoUrl = DEFAULT_USER_ICON;
 
-    // Si hay una foto, convertirla a Base64
-    if (candidateData.foto instanceof File) {
+    // Si hay una foto y es una cadena base64, usarla directamente
+    if (typeof candidateData.foto === 'string') {
+      fotoUrl = candidateData.foto;
+    }
+    // Si hay una foto y es un File, convertirla a Base64
+    else if (candidateData.foto instanceof File) {
       try {
         fotoUrl = await fileToBase64(candidateData.foto);
       } catch (error) {
@@ -64,14 +68,12 @@ export const createCandidate = async (candidateData: CandidateFormValues): Promi
       }
     }
 
-    // Preparar los datos para enviar
+    // Preparar los datos para enviar - USAR campañaId en lugar de campaña
     const requestData = {
       nombre: candidateData.nombre,
       descripcion: candidateData.descripcion,
-      campaña: candidateData.campañaId,
-      foto: fotoUrl,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      campañaId: candidateData.campañaId,  // ← CAMBIO AQUÍ
+      foto: fotoUrl
     };
 
     console.log('Enviando datos del candidato:', {
@@ -99,12 +101,15 @@ export const updateCandidate = async (id: string, candidateData: CandidateFormVa
     const updateData: any = {
       nombre: candidateData.nombre,
       descripcion: candidateData.descripcion,
-      campaña: candidateData.campañaId,
-      updatedAt: new Date().toISOString()
+      campañaId: candidateData.campañaId  // ← CAMBIO AQUÍ TAMBIÉN
     };
 
-    // Si hay una nueva foto, procesarla
-    if (candidateData.foto instanceof File) {
+    // Si hay una nueva foto y es una cadena base64, usarla directamente
+    if (typeof candidateData.foto === 'string') {
+      updateData.foto = candidateData.foto;
+    }
+    // Si hay una nueva foto y es un File, procesarla
+    else if (candidateData.foto instanceof File) {
       try {
         updateData.foto = await fileToBase64(candidateData.foto);
       } catch (error) {
