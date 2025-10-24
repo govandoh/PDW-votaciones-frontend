@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Container, Form, Button, Card, Alert, Image, Row, Col } from 'react-bootstrap';
-import { Formik, Form as FormikForm, Field, ErrorMessage } from 'formik';
+import { Formik, Form as FormikForm } from 'formik';
 import * as Yup from 'yup';
-import { createCandidate, updateCandidate } from '../../services/candidateService';
+import { PersonCircle } from 'react-bootstrap-icons';
+import { createCandidate, updateCandidate, getCandidateById } from '../../services/candidateService';
 import { getAllCampaigns } from '../../services/campaignService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { Campaign, CandidateFormValues } from '../../types';
@@ -18,42 +19,38 @@ const AdminCandidateFormPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  
-  const isEditing = !!id;
-  
-  const initialValues: CandidateFormValues = {
+  const [initialValues, setInitialValues] = useState<CandidateFormValues>({
     nombre: '',
     descripcion: '',
     foto: null,
     campañaId: preselectedCampaignId || ''
-  };
+  });
+  
+  const isEditing = !!id;
   
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
+        setError(null);
         
-        // Obtener todas las campañas
         const campaignsData = await getAllCampaigns();
         setCampaigns(campaignsData);
         
-        // Si es edición, obtener datos del candidato
-        if (isEditing) {
-          // Aquí deberíamos obtener los datos del candidato por ID
-          // Como no tenemos implementado ese servicio específico, lo dejamos para una futura implementación
-          // const candidate = await getCandidateById(id);
-          // setInitialValues({
-          //   nombre: candidate.nombre,
-          //   descripcion: candidate.descripcion,
-          //   foto: null,
-          //   campañaId: candidate.campaña
-          // });
-          // setPreviewImage(candidate.foto);
+        if (isEditing && id) {
+          const candidateData = await getCandidateById(id);
+          setInitialValues({
+            nombre: candidateData.nombre,
+            descripcion: candidateData.descripcion,
+            foto: null,
+            campañaId: candidateData.campaña
+          });
+          setPreviewImage(candidateData.foto);
         }
         
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error fetching data:', error);
-        setError('Error al cargar los datos necesarios');
+        setError(error.response?.data?.message || 'Error al cargar los datos necesarios');
       } finally {
         setLoading(false);
       }
@@ -72,23 +69,54 @@ const AdminCandidateFormPage = () => {
     campañaId: Yup.string()
       .required('Debe seleccionar una campaña'),
     foto: Yup.mixed()
+      .nullable()
       .test('fileSize', 'La imagen es demasiado grande (máximo 2MB)', 
         value => !value || (value instanceof File && value.size <= 2 * 1024 * 1024))
       .test('fileType', 'Solo se permiten imágenes (jpg, jpeg, png)', 
         value => !value || (value instanceof File && ['image/jpeg', 'image/jpg', 'image/png'].includes(value.type)))
   });
   
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>, setFieldValue: (field: string, value: any) => void) => {
-    if (event.currentTarget.files && event.currentTarget.files.length > 0) {
-      const file = event.currentTarget.files[0];
-      setFieldValue('foto', file);
-      
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>, setFieldValue: (field: string, value: any) => void) => {
+    const file = event.currentTarget.files?.[0];
+    if (!file) {
+      setFieldValue('foto', null);
+      setPreviewImage(null);
+      return;
+    }
+
+    // Validar tipo de archivo
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
+      setError('El archivo debe ser una imagen (jpg, jpeg o png)');
+      setFieldValue('foto', null);
+      setPreviewImage(null);
+      return;
+    }
+
+    // Validar tamaño del archivo (2MB)
+    const maxSize = 2 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setError('La imagen es demasiado grande (máximo 2MB)');
+      setFieldValue('foto', null);
+      setPreviewImage(null);
+      return;
+    }
+
+    try {
       // Crear preview de la imagen
       const reader = new FileReader();
       reader.onload = () => {
-        setPreviewImage(reader.result as string);
+        const result = reader.result as string;
+        setPreviewImage(result);
+        setFieldValue('foto', result);
       };
       reader.readAsDataURL(file);
+      setError(null);
+    } catch (error) {
+      console.error('Error al procesar el archivo:', error);
+      setError('Error al procesar la imagen');
+      setFieldValue('foto', null);
+      setPreviewImage(null);
     }
   };
   
@@ -121,7 +149,7 @@ const AdminCandidateFormPage = () => {
       
       <Card className="shadow-sm candidate-form-card">
         <Card.Body>
-          {error && <Alert variant="danger">{error}</Alert>}
+          {error && <Alert variant="danger" dismissible onClose={() => setError(null)}>{error}</Alert>}
           
           <Formik
             initialValues={initialValues}
@@ -129,55 +157,54 @@ const AdminCandidateFormPage = () => {
             onSubmit={handleSubmit}
             enableReinitialize
           >
-            {({ isSubmitting, setFieldValue }) => (
-              <FormikForm className="candidate-form">
+            {({ handleSubmit, handleChange, values, setFieldValue, isSubmitting, touched, errors }) => (
+              <Form noValidate onSubmit={handleSubmit}>
                 <Row className="g-4">
                   <Col md={8}>
                     <Form.Group className="mb-4" controlId="candidateName">
                       <Form.Label>Nombre</Form.Label>
-                      <Field
-                        name="nombre"
+                      <Form.Control
                         type="text"
-                        placeholder="Ingrese el nombre del candidato"
-                        className="form-control"
-                        aria-describedby="nombreHelp"
-                      />
-                      <ErrorMessage
                         name="nombre"
-                        component="div"
-                        className="form-text text-danger mt-1"
+                        value={values.nombre}
+                        onChange={handleChange}
+                        isInvalid={touched.nombre && !!errors.nombre}
+                        placeholder="Ingrese el nombre del candidato"
                       />
-                      <Form.Text id="nombreHelp" className="text-muted">
+                      <Form.Control.Feedback type="invalid">
+                        {errors.nombre}
+                      </Form.Control.Feedback>
+                      <Form.Text className="text-muted">
                         Nombre completo del candidato (máx. 100 caracteres)
                       </Form.Text>
                     </Form.Group>
                     
                     <Form.Group className="mb-4" controlId="candidateDescription">
                       <Form.Label>Descripción</Form.Label>
-                      <Field
+                      <Form.Control
                         as="textarea"
                         name="descripcion"
+                        value={values.descripcion}
                         rows={4}
+                        onChange={handleChange}
+                        isInvalid={touched.descripcion && !!errors.descripcion}
                         placeholder="Ingrese la descripción del candidato"
-                        className="form-control"
-                        aria-describedby="descripcionHelp"
                       />
-                      <ErrorMessage
-                        name="descripcion"
-                        component="div"
-                        className="form-text text-danger mt-1"
-                      />
-                      <Form.Text id="descripcionHelp" className="text-muted">
+                      <Form.Control.Feedback type="invalid">
+                        {errors.descripcion}
+                      </Form.Control.Feedback>
+                      <Form.Text className="text-muted">
                         Breve descripción del candidato (máx. 500 caracteres)
                       </Form.Text>
                     </Form.Group>
                     
                     <Form.Group className="mb-4" controlId="candidateCampaign">
                       <Form.Label>Campaña</Form.Label>
-                      <Field
-                        as="select"
+                      <Form.Select
                         name="campañaId"
-                        className="form-select"
+                        value={values.campañaId}
+                        onChange={handleChange}
+                        isInvalid={touched.campañaId && !!errors.campañaId}
                       >
                         <option value="">Seleccione una campaña</option>
                         {campaigns.map(campaign => (
@@ -185,12 +212,10 @@ const AdminCandidateFormPage = () => {
                             {campaign.titulo}
                           </option>
                         ))}
-                      </Field>
-                      <ErrorMessage
-                        name="campañaId"
-                        component="div"
-                        className="form-text text-danger mt-1"
-                      />
+                      </Form.Select>
+                      <Form.Control.Feedback type="invalid">
+                        {errors.campañaId}
+                      </Form.Control.Feedback>
                     </Form.Group>
                   </Col>
                   
@@ -211,10 +236,7 @@ const AdminCandidateFormPage = () => {
                             className="bg-light d-flex align-items-center justify-content-center text-center placeholder-wrapper"
                             style={{ height: '200px', border: '1px solid #dee2e6', borderRadius: '0.25rem' }}
                           >
-                            <span className="text-secondary">
-                              <i className="bi bi-image me-2"></i>
-                              Vista previa no disponible
-                            </span>
+                            <PersonCircle size={64} className="text-secondary" />
                           </div>
                         )}
                       </div>
@@ -222,15 +244,12 @@ const AdminCandidateFormPage = () => {
                         type="file"
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFileChange(e, setFieldValue)}
                         accept="image/jpeg,image/png,image/jpg"
-                        className="form-control file-input"
-                        aria-describedby="fotoHelp"
+                        isInvalid={touched.foto && !!errors.foto}
                       />
-                      <ErrorMessage
-                        name="foto"
-                        component="div"
-                        className="form-text text-danger mt-1"
-                      />
-                      <Form.Text id="fotoHelp" className="text-muted mt-2">
+                      <Form.Control.Feedback type="invalid">
+                        {errors.foto}
+                      </Form.Control.Feedback>
+                      <Form.Text className="text-muted mt-2">
                         Sube una imagen del candidato (JPG, JPEG o PNG, máx. 2MB)
                       </Form.Text>
                     </Form.Group>
@@ -267,7 +286,7 @@ const AdminCandidateFormPage = () => {
                     Cancelar
                   </Button>
                 </div>
-              </FormikForm>
+              </Form>
             )}
           </Formik>
         </Card.Body>

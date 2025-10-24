@@ -46,7 +46,50 @@
   &.candidate-card {
     .candidate-image {
       height: 180px;
+      width: 100%;
       object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+  }
+
+  &.candidate-form-card {
+    .preview-image {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid rgba(vars.$primary, 0.1);
+      
+      &:hover {
+        border-color: vars.$primary;
+      }
+    }
+    
+    .placeholder-wrapper {
+      width: 100%;
+      height: 250px;
+      border-radius: 8px;
+      border: 2px dashed rgba(vars.$primary, 0.2);
+      background-color: rgba(vars.$primary, 0.02);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      &:hover {
+        border-color: vars.$primary;
+        background-color: rgba(vars.$primary, 0.05);
+      }
+      
+      .text-secondary {
+        font-size: 0.9rem;
+        
+        i {
+          font-size: 1.5rem;
+          display: block;
+          margin-bottom: 0.5rem;
+        }
+      }
     }
   }
 }

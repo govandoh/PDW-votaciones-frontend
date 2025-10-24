@@ -27,9 +27,10 @@ export interface Candidate {
   nombre: string;
   descripcion: string;
   foto: string;
-  campaña: string;
+  campaña: string; // ID de la campaña
   createdAt: string;
   updatedAt: string;
+  __v?: number;
 }
 
 export interface Vote {
@@ -104,4 +105,6 @@ export interface CandidateFormValues {
   descripcion: string;
   foto: File | null;
   campañaId: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
