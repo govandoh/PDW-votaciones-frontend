@@ -9,29 +9,10 @@ import socketService from '../../services/socketService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { getCandidateImageByFileName } from '../../config/candidateImages';
 import { CampaignDetail, VoteResult } from '../../types';
+import { formatDateForDisplay, calculateRemainingSeconds, formatRemainingTime } from '../../utils/dateUtils';
 
 // Registrar componentes de ChartJS
 ChartJS.register(ArcElement, Tooltip, Legend);
-
-// Función para formatear el tiempo restante
-const formatRemainingTime = (seconds: number): string => {
-  if (seconds <= 0) return 'Campaña finalizada';
-  
-  const days = Math.floor(seconds / (24 * 3600));
-  const hours = Math.floor((seconds % (24 * 3600)) / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = seconds % 60;
-  
-  if (days > 0) {
-    return `${days}d ${hours}h ${minutes}m`;
-  } else if (hours > 0) {
-    return `${hours}h ${minutes}m ${secs}s`;
-  } else if (minutes > 0) {
-    return `${minutes}m ${secs}s`;
-  } else {
-    return `${secs}s`;
-  }
-};
 
 const CampaignDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -55,32 +36,31 @@ const CampaignDetailPage = () => {
   useEffect(() => {
     if (!campaignDetail) return;
     
-    const calculateRemainingTime = () => {
+    const calculateAndUpdateRemainingTime = () => {
       const now = new Date();
       const endDate = new Date(campaignDetail.campaign.fechaFin);
       const startDate = new Date(campaignDetail.campaign.fechaInicio);
       
       // Si la campaña no ha comenzado
       if (now < startDate) {
+        setRemainingTime(null);
         return null;
       }
       
       // Calcular segundos restantes
-      const diffInMs = endDate.getTime() - now.getTime();
-      const diffInSeconds = Math.floor(diffInMs / 1000);
+      const remaining = calculateRemainingSeconds(campaignDetail.campaign.fechaFin);
+      setRemainingTime(remaining);
       
-      return diffInSeconds > 0 ? diffInSeconds : 0;
+      return remaining;
     };
     
     // Calcular inmediatamente
-    const remaining = calculateRemainingTime();
-    setRemainingTime(remaining);
+    const remaining = calculateAndUpdateRemainingTime();
     
     // Actualizar cada segundo si la campaña está activa
     if (isActive && remaining !== null && remaining > 0) {
-      timerRef.current = setInterval(() => {
-        const newRemaining = calculateRemainingTime();
-        setRemainingTime(newRemaining);
+      timerRef.current = window.setInterval(() => {
+        const newRemaining = calculateAndUpdateRemainingTime();
         
         // Si el tiempo se acabó, detener el timer
         if (newRemaining !== null && newRemaining <= 0) {
@@ -271,6 +251,32 @@ const CampaignDetailPage = () => {
           <div>
             <h1 className="campaign-title mb-2">{campaignDetail.campaign.titulo}</h1>
             <p className="campaign-description lead text-muted">{campaignDetail.campaign.descripcion}</p>
+            
+            {/* Información de fechas */}
+            <div className="text-muted small mt-2">
+              <div>
+                <i className="bi bi-calendar-event me-2"></i>
+                <strong>Inicio:</strong> {formatDateForDisplay(campaignDetail.campaign.fechaInicio, {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  timeZone: 'America/Guatemala'
+                })} (Hora de Guatemala)
+              </div>
+              <div className="mt-1">
+                <i className="bi bi-calendar-check me-2"></i>
+                <strong>Finaliza:</strong> {formatDateForDisplay(campaignDetail.campaign.fechaFin, {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  timeZone: 'America/Guatemala'
+                })} (Hora de Guatemala)
+              </div>
+            </div>
           </div>
           <Badge 
             bg={isActive ? 'success' : 'secondary'}
@@ -294,6 +300,17 @@ const CampaignDetailPage = () => {
                   <h3 className={`mb-0 ${isActive ? 'text-success' : 'text-secondary'}`}>
                     {formatRemainingTime(remainingTime)}
                   </h3>
+                  {remainingTime > 0 && (
+                    <small className="text-muted">
+                      hasta el {formatDateForDisplay(campaignDetail.campaign.fechaFin, {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        timeZone: 'America/Guatemala'
+                      })}
+                    </small>
+                  )}
                 </Card.Body>
               </Card>
             </Col>

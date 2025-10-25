@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Form, Badge, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { getAllCampaigns } from '../../services/campaignService';
+import { formatDateForDisplay } from '../../utils/dateUtils';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { Campaign } from '../../types';
 
@@ -144,8 +145,21 @@ const CampaignsPage = () => {
                     </small>
                     
                     <small className="text-muted d-block mb-3">
-                      Período: {new Date(campaign.fechaInicio).toLocaleDateString()} - 
-                      {new Date(campaign.fechaFin).toLocaleDateString()}
+                      Período: {formatDateForDisplay(campaign.fechaInicio, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        timeZone: 'America/Guatemala'
+                      })} - {formatDateForDisplay(campaign.fechaFin, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        timeZone: 'America/Guatemala'
+                      })}
                     </small>
                   </div>
                 </Card.Body>

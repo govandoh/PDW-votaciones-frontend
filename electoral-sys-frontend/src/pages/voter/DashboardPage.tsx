@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import { getAllCampaigns } from '../../services/campaignService';
+import { formatDateForDisplay } from '../../utils/dateUtils';
 import { useAuth } from '../../context/AuthContext';
 import { Campaign } from '../../types';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -77,9 +78,26 @@ const DashboardPage = () => {
                       ? `${campaign.descripcion.substring(0, 100)}...` 
                       : campaign.descripcion}
                   </Card.Text>
-                  <div className="d-flex justify-content-between align-items-center mt-3">
+                  <div className="d-flex flex-column gap-2 mt-3">
                     <small className="text-muted">
                       Votos por votante: {campaign.cantidadVotosPorVotante}
+                    </small>
+                    <small className="text-muted">
+                      Período: {formatDateForDisplay(campaign.fechaInicio, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        timeZone: 'America/Guatemala'
+                      })} - {formatDateForDisplay(campaign.fechaFin, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        timeZone: 'America/Guatemala'
+                      })}
                     </small>
                     <Link to={`/campaigns/${campaign._id}`} className="btn btn-primary">
                       Participar

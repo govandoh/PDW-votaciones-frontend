@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Container, Table, Button, Badge, Alert, Modal, Form } from 'react-bootstrap';
+import { Container, Table, Button, Badge, Alert, Modal } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { 
   getAllCampaigns, 
@@ -7,6 +7,7 @@ import {
 } from '../../services/campaignService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { Campaign } from '../../types';
+import { formatDateForDisplay } from '../../utils/dateUtils';
 
 const AdminCampaignsPage = () => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
@@ -17,7 +18,6 @@ const AdminCampaignsPage = () => {
   const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
-  // Cargar campañas
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
@@ -37,86 +37,65 @@ const AdminCampaignsPage = () => {
     fetchCampaigns();
   }, []);
   
-  // Función para abrir el modal de activación
   const handleActivateClick = (campaignId: string) => {
     setSelectedCampaign(campaignId);
     setShowActivateModal(true);
   };
   
-  // Función para activar una campaña
   const handleActivate = async () => {
-  if (!selectedCampaign) return;
-  
-  try {
-    setActionLoading(selectedCampaign);
+    if (!selectedCampaign) return;
     
-    // Llamar al servicio para actualizar el estado
-    await updateCampaignStatus(selectedCampaign, 'activa');
-    
-    // CORRECCIÓN: Crear una copia explícita del array de campañas
-    const updatedCampaigns = [...campaigns]; // Crea una copia del array
-    
-    // Buscar y actualizar la campaña específica
-    const campaignIndex = updatedCampaigns.findIndex(c => c._id === selectedCampaign);
-    if (campaignIndex !== -1) {
-      updatedCampaigns[campaignIndex] = {
-        ...updatedCampaigns[campaignIndex],
-        estado: 'activa'
-      };
+    try {
+      setActionLoading(selectedCampaign);
+      await updateCampaignStatus(selectedCampaign, 'activa');
+      
+      const updatedCampaigns = [...campaigns];
+      const campaignIndex = updatedCampaigns.findIndex(c => c._id === selectedCampaign);
+      if (campaignIndex !== -1) {
+        updatedCampaigns[campaignIndex] = {
+          ...updatedCampaigns[campaignIndex],
+          estado: 'activa'
+        };
+      }
+      
+      setCampaigns(updatedCampaigns);
+      setShowActivateModal(false);
+      setSuccessMessage('Campaña activada exitosamente');
+      
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (error: any) {
+      console.error('Error activating campaign:', error);
+      setError('No se pudo activar la campaña: ' + (error.message || 'Error desconocido'));
+    } finally {
+      setActionLoading(null);
     }
-    
-    // Actualizar el estado con la copia modificada
-    setCampaigns(updatedCampaigns);
-    
-    setShowActivateModal(false);
-    setSuccessMessage('Campaña activada exitosamente');
-    
-    setTimeout(() => {
-      setSuccessMessage(null);
-    }, 3000);
-  } catch (error: any) {
-    console.error('Error activating campaign:', error);
-    setError('No se pudo activar la campaña: ' + (error.message || 'Error desconocido'));
-  } finally {
-    setActionLoading(null);
-  }
-};
+  };
   
-  // Función para finalizar una campaña
   const handleDeactivate = async (id: string) => {
-  try {
-    setActionLoading(id);
-    
-    // Llamar al servicio para actualizar el estado
-    await updateCampaignStatus(id, 'finalizada');
-    
-    // CORRECCIÓN: Crear una copia explícita del array de campañas
-    const updatedCampaigns = [...campaigns]; // Crea una copia del array
-    
-    // Buscar y actualizar la campaña específica
-    const campaignIndex = updatedCampaigns.findIndex(c => c._id === id);
-    if (campaignIndex !== -1) {
-      updatedCampaigns[campaignIndex] = {
-        ...updatedCampaigns[campaignIndex],
-        estado: 'finalizada'
-      };
+    try {
+      setActionLoading(id);
+      await updateCampaignStatus(id, 'finalizada');
+      
+      const updatedCampaigns = [...campaigns];
+      const campaignIndex = updatedCampaigns.findIndex(c => c._id === id);
+      if (campaignIndex !== -1) {
+        updatedCampaigns[campaignIndex] = {
+          ...updatedCampaigns[campaignIndex],
+          estado: 'finalizada'
+        };
+      }
+      
+      setCampaigns(updatedCampaigns);
+      setSuccessMessage('Campaña finalizada exitosamente');
+      
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (error: any) {
+      console.error('Error finalizing campaign:', error);
+      setError('No se pudo finalizar la campaña: ' + (error.message || 'Error desconocido'));
+    } finally {
+      setActionLoading(null);
     }
-    
-    // Actualizar el estado con la copia modificada
-    setCampaigns(updatedCampaigns);
-    
-    setSuccessMessage('Campaña finalizada exitosamente');
-    
-    setTimeout(() => {
-      setSuccessMessage(null);
-    }, 3000);
-  } catch (error: any) {
-    console.error('Error finalizing campaign:', error);
-    setError('No se pudo finalizar la campaña: ' + (error.message || 'Error desconocido'));
-  } finally {
-    setActionLoading(null);
-  }
-};
+  };
 
   if (loading) {
     return <LoadingSpinner />;
@@ -145,8 +124,8 @@ const AdminCampaignsPage = () => {
               <th>Título</th>
               <th>Estado</th>
               <th>Votos por Votante</th>
-              <th>Fecha Inicio</th>
-              <th>Fecha Fin</th>
+              <th>Fecha Inicio (Guatemala)</th>
+              <th>Fecha Fin (Guatemala)</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -166,8 +145,26 @@ const AdminCampaignsPage = () => {
                   </Badge>
                 </td>
                 <td>{campaign.cantidadVotosPorVotante}</td>
-                <td>{new Date(campaign.fechaInicio).toLocaleDateString()}</td>
-                <td>{new Date(campaign.fechaFin).toLocaleDateString()}</td>
+                <td>
+                  {formatDateForDisplay(campaign.fechaInicio, {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZone: 'America/Guatemala'
+                  })}
+                </td>
+                <td>
+                  {formatDateForDisplay(campaign.fechaFin, {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZone: 'America/Guatemala'
+                  })}
+                </td>
                 <td>
                   <div className="d-flex gap-2">
                     <Link 
@@ -213,7 +210,6 @@ const AdminCampaignsPage = () => {
         </Table>
       )}
       
-      {/* Modal para activar campaña */}
       <Modal show={showActivateModal} onHide={() => setShowActivateModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Activar Campaña</Modal.Title>
